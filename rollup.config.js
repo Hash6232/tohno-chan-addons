@@ -12,7 +12,8 @@ const outputs = inputFiles.map((inputFile) => ({
     input: inputFile,
     output: {
         file: path.join('dist', path.basename(inputFile, ".ts") + ".js"),
-        format: 'iife'
+        format: 'iife',
+        sourcemap: true
     },
     plugins: [typescript(), terser()],
 }));
