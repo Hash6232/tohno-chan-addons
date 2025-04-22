@@ -1,6 +1,5 @@
 import { runWhenElementExists } from "./utils/observe";
 import { Selectors as QuickreplySelectors } from "./enums/selectors/QuickreplySelectorsEnum";
-import { runMain } from "./utils/general";
 
 const FILENAME = "quick-reply" as const;
 
@@ -48,4 +47,8 @@ const main = () => {
   });
 };
 
-runMain(runWhenElementExists(QuickreplySelectors.ROOT, main), FILENAME);
+try {
+  runWhenElementExists(QuickreplySelectors.ROOT, main);
+} catch (err) {
+  console.log(`[${FILENAME}]`, err);
+}
