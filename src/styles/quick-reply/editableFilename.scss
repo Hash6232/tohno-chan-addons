@@ -1,12 +1,12 @@
 #quick-reply {
   /* Swap original file input with file inputname */
-  input#upload_file {
+  #upload_file {
     display: none;
   }
 
   /* Hide clear button when no file is attached ot the file input field */
-  &:has(input#upload_filename:placeholder-shown) {
-    tr#upload > :last-child {
+  &:has(#upload_filename:placeholder-shown) {
+    #upload > :last-child {
       display: none;
     }
   }
