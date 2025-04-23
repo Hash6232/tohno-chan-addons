@@ -31,11 +31,6 @@ const outputs = inputFiles.map((inputFile) => ({
       output: false,
       insert: true,
       outputStyle: "compressed",
-      processor: (css) => {
-        /* Prepend script name for reference */
-        const filename = path.basename(inputFile, ".ts");
-        return `/* ${filename} */\n` + css;
-      },
       silenceDeprecations: ["legacy-js-api"],
     }),
     terser(),
