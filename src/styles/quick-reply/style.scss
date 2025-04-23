@@ -1,0 +1,9 @@
+#quick-reply {
+  &>hr {
+    display: none;
+  }
+  
+  tr:last-of-type {
+    display: none;
+  }
+}
