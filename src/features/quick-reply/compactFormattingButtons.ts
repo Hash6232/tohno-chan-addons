@@ -6,6 +6,16 @@ const newLabel = (btn: HTMLInputElement) => {
   return `<label title="${title}" for="${id}">${label}</label>`;
 };
 
+const handleLabelClick = (e: MouseEvent) => {
+  if (e.target !== e.currentTarget) return;
+
+  const textarea = document.querySelector(QuickreplySelectorsEnum.TEXTAREA) as HTMLTextAreaElement | null;
+
+  if (!textarea) return;
+
+  textarea.focus();
+};
+
 export const compactFormattingButtons = () => {
   const formattingRow = document.querySelector(QuickreplySelectorsEnum.FORMATTING_ROW) as HTMLTableRowElement | null;
 
@@ -24,5 +34,11 @@ export const compactFormattingButtons = () => {
   for (const btn of buttons) {
     btn.id = "quick-reply-" + btn.name + "-btn";
     labelsContainer.insertAdjacentHTML("beforeend", newLabel(btn));
+
+    const label = labelsContainer.lastElementChild as HTMLLabelElement | null;
+
+    if (!label) return;
+
+    label.addEventListener("click", handleLabelClick);
   }
 };
