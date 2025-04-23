@@ -26,7 +26,12 @@ const outputs = inputFiles.map((inputFile) => ({
           { find: '@utils', replacement: './src/utils' }
         ]
       }),
-      scss({output: false, insert: true, outputStyle: 'compressed'}),
+      scss({
+        output: false, 
+        insert: true, 
+        outputStyle: 'compressed',
+        silenceDeprecations: ["legacy-js-api"]
+      }),
       terser()
     ],
 }));
