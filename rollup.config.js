@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 import { defineConfig } from 'rollup';
 import typescript from '@rollup/plugin-typescript';
+import alias from '@rollup/plugin-alias';
 import scss from 'rollup-plugin-scss';
 import terser from '@rollup/plugin-terser';
 
@@ -16,11 +17,18 @@ const outputs = inputFiles.map((inputFile) => ({
         format: 'iife',
         sourcemap: true
     },
-    plugins: [typescript(), scss({
-      output: false,
-      insert: true,
-      outputStyle: 'compressed'
-    }), terser()],
+    plugins: [
+      typescript(),
+      alias({
+        entries: [
+          { find: '@enums', replacement: './src/enums' },
+          { find: '@features', replacement: './src/features' },
+          { find: '@utils', replacement: './src/utils' }
+        ]
+      }),
+      scss({output: false, insert: true, outputStyle: 'compressed'}),
+      terser()
+    ],
 }));
 
 export default defineConfig(outputs);
