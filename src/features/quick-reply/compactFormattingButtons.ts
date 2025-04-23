@@ -1,5 +1,5 @@
 import { QuickreplySelectorsEnum } from "@enums/selectorsEnum";
-import "../../styles/compactFormattingButtons.scss";
+import "../../styles/quick-reply/compactFormattingButtons.scss";
 
 const newLabel = (btn: HTMLInputElement) => {
   const { id, name: label, value: title } = btn;

@@ -1,6 +1,6 @@
 import { QuickreplySelectorsEnum } from "@enums/selectorsEnum";
 import { QuickreplyHTMLEnum } from "@enums/htmlEnum";
-import "../../styles/editableFilename.scss";
+import "../../styles/quick-reply/editableFilename.scss";
 
 const handleFilenameClick = (fileinput: HTMLInputElement) => {
   if ((fileinput.files?.length ?? 1) > 0) return;
