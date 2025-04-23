@@ -1,13 +1,55 @@
 #quick-reply {
-  /* Swap original file input with file inputname */
-  #upload_file {
-    display: none;
-  }
+  #upload {
+    /* Extend file input styling to entire row */
+    background-color: white;
+    border: 1px solid;
 
-  /* Hide clear button when no file is attached ot the file input field */
-  &:has(#upload_filename:placeholder-shown) {
-    #upload > :last-child {
+    /* Extend cursor styling to sibling columns */
+    & > td {
+      cursor: text;
+    }
+
+    /* Swap original file input with file inputname */
+    #upload_file {
       display: none;
+    }
+
+    /* Defuse outline when focusing input field */
+    #upload_filename {
+      border: none;
+      outline: none;
+    }
+
+    /* Hide clear button when no file is attached ot the file input field */
+    &:has(#upload_filename:placeholder-shown) {
+      & > :last-child {
+        display: none;
+      }
+    }
+
+    /* Swap old checkbox+label pair with compact toggle */
+    .spoiler {
+      padding-right: 0;
+
+      & > * {
+        vertical-align: middle;
+      }
+
+      label {
+        font-size: 0;
+        line-height: 0;
+
+        &::after {
+          content: "S";
+          font-size: 16px;
+          vertical-align: middle;
+        }
+      }
+
+      input:not(:checked),
+      input:checked ~ label {
+        display: none;
+      }
     }
   }
 }
