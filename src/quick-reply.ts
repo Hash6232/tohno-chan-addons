@@ -1,7 +1,7 @@
 import { runWhenElementExists } from "./utils/observe";
 import { QuickreplySelectors } from "./enums/selectors/quickreplySelectorsEnum";
-import { editableFilename } from "./features/quickReply/editableFilename";
-import { clipboardImagePaste } from "./features/quickReply/clipboardImagePaste";
+import { editableFilename } from "./features/quick-reply/editableFilename";
+import { clipboardImagePaste } from "./features/quick-reply/clipboardImagePaste";
 
 const FILENAME = "quick-reply" as const;
 
