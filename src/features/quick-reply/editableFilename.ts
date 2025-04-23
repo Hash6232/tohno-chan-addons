@@ -7,6 +7,10 @@ const handleFilenameClick = (fileinput: HTMLInputElement) => {
   fileinput.click();
 };
 
+const handleFileinputCancel = (filename: HTMLInputElement) => {
+  filename.blur();
+};
+
 const handleFileinputChange = (fileinput: HTMLInputElement, filename: HTMLInputElement) => {
   if ((fileinput.files?.length ?? 0) < 1) return;
   filename.value = fileinput.files![0].name;
@@ -59,6 +63,7 @@ export const editableFilename = () => {
 
   // Update filename field when a file is attached
   fileinput.addEventListener("change", () => handleFileinputChange(fileinput, filename));
+  fileinput.addEventListener("cancel", () => handleFileinputCancel(filename));
 
   // Apply new filename once the input field loses focus
   form.addEventListener("submit", () => handleFormSubmit(fileinput, filename));
