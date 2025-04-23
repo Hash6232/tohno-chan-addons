@@ -32,7 +32,7 @@ const outputs = inputFiles.map((inputFile) => ({
         outputStyle: 'compressed',
         processor: (css) => {
           /* Prepend script name for reference */
-          const filename = inputFile.split("\\").pop();
+          const filename = path.basename(inputFile, '.ts');
           return `/* ${filename} */\n` + css
         },
         silenceDeprecations: ["legacy-js-api"]
