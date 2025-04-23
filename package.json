@@ -16,6 +16,8 @@
     "@typescript-eslint/parser": "^8.31.0",
     "eslint": "^9.25.1",
     "rollup": "^4.40.0",
+    "rollup-plugin-scss": "^4.0.1",
+    "sass": "^1.87.0",
     "typescript": "^5.8.3"
   }
 }

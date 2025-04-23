@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 import { defineConfig } from 'rollup';
 import typescript from '@rollup/plugin-typescript';
+import scss from 'rollup-plugin-scss';
 import terser from '@rollup/plugin-terser';
 
 const inputFiles = fs.readdirSync("src")
@@ -15,7 +16,11 @@ const outputs = inputFiles.map((inputFile) => ({
         format: 'iife',
         sourcemap: true
     },
-    plugins: [typescript(), terser()],
+    plugins: [typescript(), scss({
+      output: false,
+      insert: true,
+      outputStyle: 'compressed'
+    }), terser()],
 }));
 
 export default defineConfig(outputs);
