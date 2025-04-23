@@ -41,7 +41,7 @@ const handleResetFileinput = (fileinput: HTMLInputElement, filename: HTMLInputEl
   filename.value = "";
 };
 
-export const editableFilename = () => {
+const editableFilename = () => {
   const form = document.querySelector(QuickreplySelectorsEnum.ROOT) as HTMLFormElement | null;
   const fileinput = document.querySelector(QuickreplySelectorsEnum.FILEINPUT) as HTMLInputElement | null;
   const uploadRow = document.querySelector(QuickreplySelectorsEnum.UPLOAD_ROW) as HTMLTableRowElement | null;
@@ -71,3 +71,5 @@ export const editableFilename = () => {
   // Clear fileinput on button click
   clearBtn.addEventListener("click", () => handleResetFileinput(fileinput, filename));
 };
+
+export default editableFilename;

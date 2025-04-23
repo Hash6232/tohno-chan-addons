@@ -1,6 +1,6 @@
 import { QuickreplySelectorsEnum } from "@enums/selectorsEnum";
 
-export const clipboardImagePaste = () => {
+const clipboardImagePaste = () => {
   const textarea = document.querySelector(QuickreplySelectorsEnum.TEXTAREA) as HTMLTextAreaElement | null;
   const fileinput = document.querySelector(QuickreplySelectorsEnum.FILEINPUT) as HTMLInputElement | null;
 
@@ -28,3 +28,5 @@ export const clipboardImagePaste = () => {
     fileinput.files = dataTransfer.files;
   });
 };
+
+export default clipboardImagePaste;

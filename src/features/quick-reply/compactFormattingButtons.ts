@@ -16,7 +16,7 @@ const handleLabelClick = (e: MouseEvent) => {
   textarea.focus();
 };
 
-export const compactFormattingButtons = () => {
+const compactFormattingButtons = () => {
   const formattingRow = document.querySelector(QuickreplySelectorsEnum.FORMATTING_ROW) as HTMLTableRowElement | null;
 
   if (!formattingRow) return;
@@ -42,3 +42,5 @@ export const compactFormattingButtons = () => {
     label.addEventListener("click", handleLabelClick);
   }
 };
+
+export default compactFormattingButtons;
