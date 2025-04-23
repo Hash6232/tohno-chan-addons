@@ -1,6 +1,6 @@
-import { HTMLEnum } from "@enums/htmlEnum";
 import { QuickreplySelectorsEnum } from "@enums/selectorsEnum";
-import "../../styles/quick-reply.scss";
+import { QuickreplyHTMLEnum } from "@enums/htmlEnum";
+import "../../styles/editableFilename.scss";
 
 const handleFilenameClick = (fileinput: HTMLInputElement) => {
   if ((fileinput.files?.length ?? 1) > 0) return;
@@ -45,12 +45,14 @@ export const editableFilename = () => {
   if (!fileinput || !uploadRow) return;
 
   // Replace fileinput with filename field
-  fileinput.style.display = "none";
-  fileinput.insertAdjacentHTML("afterend", HTMLEnum.QRFILENAME);
-
+  fileinput.insertAdjacentHTML("afterend", QuickreplyHTMLEnum.FILENAME);
   const filename = document.getElementById("upload_filename") as HTMLInputElement | null;
 
-  if (!form || !filename) return;
+  // Add clear fileinput field button
+  uploadRow.insertAdjacentHTML("beforeend", QuickreplyHTMLEnum.FILENAME_CLEAR);
+  const clearBtn = document.getElementById("reset-qr-fileinput") as HTMLAnchorElement | null;
+
+  if (!form || !filename || !clearBtn) return;
 
   // Trigger file picker only when no file is attached
   filename.addEventListener("click", () => handleFilenameClick(fileinput));
@@ -61,6 +63,6 @@ export const editableFilename = () => {
   // Apply new filename once the input field loses focus
   form.addEventListener("submit", () => handleFormSubmit(fileinput, filename));
 
-  // Add clear fileinput field button
-  // resetBtn.addEventListener("click", () => handleResetFileinput(fileinput, filename));
+  // Clear fileinput on button click
+  clearBtn.addEventListener("click", () => handleResetFileinput(fileinput, filename));
 };

@@ -1,6 +1,6 @@
 import { IconsEnum } from "./iconsEnum";
 
-export const enum HTMLEnum {
-  QRFILENAME = `<input id="upload_filename" type="text" name="filename" placeholder="No file selected." />`,
-  QRFILENAMECLEAR = `<a href="javascript:;" title="Remove attachment">${IconsEnum.CLOSE}</a>`
+export const enum QuickreplyHTMLEnum {
+  FILENAME = `<input id="upload_filename" type="text" name="filename" placeholder="No file selected." />`,
+  FILENAME_CLEAR = `<td><a id="reset-qr-fileinput" href="javascript:;" title="Remove attachment">${IconsEnum.CLOSE}</a></td>`
 }
