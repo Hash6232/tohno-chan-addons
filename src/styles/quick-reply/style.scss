@@ -1,9 +1,21 @@
 #quick-reply {
-  &>hr {
+  /* Cleanup leftovers from main form */
+  & > hr {
     display: none;
   }
-  
+
+  /* Hide pointless info */
   tr:last-of-type {
     display: none;
+  }
+
+  /* Place noko and sage on the same line as email */
+  input[type="text"][name="email"] {
+    width: 70%;
+
+    & + .btn {
+      width: 15%;
+      transform: translateX(0.25px);
+    }
   }
 }
