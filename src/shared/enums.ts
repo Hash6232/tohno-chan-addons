@@ -1,6 +1,10 @@
 export const enum SelectorsEnum {
-  POST_FORM_MAIN = "body > form[name='post']",
-  POST_FORM_TEXTAREA = SelectorsEnum.POST_FORM_MAIN + " textarea[name='body']",
+  INDEX = "body > form[name='postcontrols']",
+  CATALOG = "body > div.threads",
+  THREAD = SelectorsEnum.INDEX + " .thread",
+  POST = SelectorsEnum.THREAD + " .post",
+  POST_FORM = "body > form[name='post']",
+  POST_FORM_TEXTAREA = SelectorsEnum.POST_FORM + " textarea[name='body']",
 
   QR = "form#quick-reply",
   QR_CLOSE = SelectorsEnum.QR + " a.close-btn",
