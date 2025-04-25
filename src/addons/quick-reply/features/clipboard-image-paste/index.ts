@@ -26,6 +26,9 @@ const clipboardImagePaste = () => {
 
     // Assign the file to the input field
     fileinput.files = dataTransfer.files;
+
+    // Manually trigger a 'change' event
+    fileinput.dispatchEvent(new Event("change", { bubbles: true }));
   });
 };
 
