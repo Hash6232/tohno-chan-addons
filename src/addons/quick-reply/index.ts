@@ -13,7 +13,7 @@ const main = () => {
 };
 
 try {
-  runWhenElementExists(SelectorsEnum.QR, main);
+  runWhenElementExists(main, SelectorsEnum.QR);
 } catch (err) {
   console.log("[quick-reply-addon]", err);
 }

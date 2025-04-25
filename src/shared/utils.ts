@@ -1,4 +1,4 @@
-export const runWhenElementExists = (query: string, callback: (...args: any[]) => any, cleanup = false) => {
+export const runWhenElementExists = (callback: (...args: any[]) => any, query: string, cleanup = false) => {
   // If the element exists, execute the callback immediately
   if (document.body.querySelector(query)) {
     callback();
