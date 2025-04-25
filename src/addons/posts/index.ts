@@ -1,9 +1,17 @@
 import { SelectorsEnum } from "@shared/enums";
-import { runOnDOMLoaded } from "@shared/utils";
+import { lazyLoading, runOnDOMLoaded } from "@shared/utils";
+import { addRelativeTime } from "./features/add-relative-time";
 
 const main = () => {
   const posts = document.querySelectorAll(SelectorsEnum.POST + ":not(.hidden)") as NodeListOf<HTMLDivElement>;
 
+  /* One-timers */
+  /* ... */
+
+  /* On-demand features */
+  lazyLoading(posts, [
+    addRelativeTime
+  ]);
 };
 
 try {
