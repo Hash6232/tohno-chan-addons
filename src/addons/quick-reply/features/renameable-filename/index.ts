@@ -1,22 +1,22 @@
-import { QuickreplySelectorsEnum } from "@enums/selectorsEnum";
-import { QuickreplyHTMLEnum } from "@enums/htmlEnum";
-import "../../styles/quick-reply/editableFilename.scss";
+import { SelectorsEnum } from "@shared/enums";
+import "./index.scss";
 
 const handleFilenameClick = (fileinput: HTMLInputElement) => {
   if ((fileinput.files?.length ?? 1) > 0) return;
   fileinput.click();
 };
 
-const handleFileinputCancel = (filename: HTMLInputElement) => {
-  filename.blur();
-};
-
 const handleFileinputChange = (fileinput: HTMLInputElement, filename: HTMLInputElement) => {
   if ((fileinput.files?.length ?? 0) < 1) return;
   filename.value = fileinput.files![0].name;
+
   // Place cursor at the end of the field
   const length = filename.value.length;
   filename.setSelectionRange(length, length);
+};
+
+const handleFileinputCancel = (filename: HTMLInputElement) => {
+  filename.blur();
 };
 
 const handleFormSubmit = (fileinput: HTMLInputElement, filename: HTMLInputElement) => {
@@ -36,27 +36,20 @@ const handleFormSubmit = (fileinput: HTMLInputElement, filename: HTMLInputElemen
   fileinput.files = dataTransfer.files;
 };
 
-const handleResetFileinput = (fileinput: HTMLInputElement, filename: HTMLInputElement) => {
-  fileinput.value = "";
-  filename.value = "";
-};
+const renameableFilename = () => {
+  const form = document.querySelector(SelectorsEnum.QR) as HTMLFormElement | null;
+  const fileinput = document.querySelector(SelectorsEnum.QR_FILEINPUT) as HTMLInputElement | null;
+  const spoilerCol = document.querySelector(SelectorsEnum.QR_SPOILER_COL) as HTMLTableColElement | null;
 
-const editableFilename = () => {
-  const form = document.querySelector(QuickreplySelectorsEnum.ROOT) as HTMLFormElement | null;
-  const fileinput = document.querySelector(QuickreplySelectorsEnum.FILEINPUT) as HTMLInputElement | null;
-  const uploadRow = document.querySelector(QuickreplySelectorsEnum.UPLOAD_ROW) as HTMLTableRowElement | null;
+  if (!fileinput || !spoilerCol) return;
 
-  if (!fileinput || !uploadRow) return;
-
-  // Replace fileinput with filename field
-  fileinput.insertAdjacentHTML("afterend", QuickreplyHTMLEnum.FILENAME);
+  fileinput.insertAdjacentHTML(
+    "afterend",
+    `<input id="upload_filename" type="text" name="filename" placeholder="Click to upload file" />`
+  );
   const filename = document.getElementById("upload_filename") as HTMLInputElement | null;
 
-  // Add clear fileinput field button
-  uploadRow.insertAdjacentHTML("beforeend", QuickreplyHTMLEnum.FILENAME_CLEAR);
-  const clearBtn = document.getElementById("reset-qr-fileinput") as HTMLAnchorElement | null;
-
-  if (!form || !filename || !clearBtn) return;
+  if (!form || !filename) return;
 
   // Trigger file picker only when no file is attached
   filename.addEventListener("click", () => handleFilenameClick(fileinput));
@@ -67,9 +60,6 @@ const editableFilename = () => {
 
   // Apply new filename once the input field loses focus
   form.addEventListener("submit", () => handleFormSubmit(fileinput, filename));
-
-  // Clear fileinput on button click
-  clearBtn.addEventListener("click", () => handleResetFileinput(fileinput, filename));
 };
 
-export default editableFilename;
+export default renameableFilename;

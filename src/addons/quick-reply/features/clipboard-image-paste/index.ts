@@ -1,8 +1,8 @@
-import { QuickreplySelectorsEnum } from "@enums/selectorsEnum";
+import { SelectorsEnum } from "@shared/enums";
 
 const clipboardImagePaste = () => {
-  const textarea = document.querySelector(QuickreplySelectorsEnum.TEXTAREA) as HTMLTextAreaElement | null;
-  const fileinput = document.querySelector(QuickreplySelectorsEnum.FILEINPUT) as HTMLInputElement | null;
+  const textarea = document.querySelector(SelectorsEnum.QR_TEXTAREA) as HTMLTextAreaElement | null;
+  const fileinput = document.querySelector(SelectorsEnum.QR_FILEINPUT) as HTMLInputElement | null;
 
   // Handle paste event when textarea has focus
   textarea?.addEventListener("paste", (e) => {

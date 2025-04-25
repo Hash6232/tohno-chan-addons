@@ -1,32 +1,31 @@
+import alias from "@rollup/plugin-alias";
+import terser from "@rollup/plugin-terser";
+import typescript from "@rollup/plugin-typescript";
 import fs from "fs";
 import path from "path";
 import { defineConfig } from "rollup";
-import typescript from "@rollup/plugin-typescript";
-import alias from "@rollup/plugin-alias";
 import scss from "rollup-plugin-scss";
-import terser from "@rollup/plugin-terser";
 
-const inputFiles = fs
-  .readdirSync("src")
-  .filter((file) => file.endsWith(".ts"))
-  .map((file) => path.join("src", file));
+const sourceDir = "./src/addons";
 
-const outputs = inputFiles.map((inputFile) => ({
+const addons = fs
+  .readdirSync(sourceDir)
+  .map((name) => path.join(sourceDir, name))
+  .filter((source) => fs.statSync(source).isDirectory())
+  .map((directory) => [path.basename(directory), path.join(directory, "index.ts")]);
+
+const outputs = addons.map(([addonName, inputFile]) => ({
   input: inputFile,
   output: {
-    file: path.join("dist", path.basename(inputFile, ".ts") + ".js"),
+    file: path.join("dist", addonName + "-addon.js"),
     format: "iife",
     sourcemap: true,
   },
   plugins: [
-    typescript(),
     alias({
-      entries: [
-        { find: "@enums", replacement: "./src/enums" },
-        { find: "@features", replacement: "./src/features" },
-        { find: "@utils", replacement: "./src/utils" },
-      ],
+      entries: [{ find: "@shared", replacement: path.resolve("./src/shared") }],
     }),
+    typescript(),
     scss({
       output: false,
       insert: true,
