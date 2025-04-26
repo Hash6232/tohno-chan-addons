@@ -1,7 +1,7 @@
 type NewButtonOptions = { label: string; title: string };
 
 export const createNewButtonTemplate = ({ label, title }: NewButtonOptions) => {
-  return `<div title="${title}" class="btn-container btn"><a href="">${label}</a></div>`;
+  return `<div title="${title}" class="btn-container btn"><a href="javascript:;">${label}</a></div>`;
 };
 
 type NewToggleOption = { label: string; title: string; id: string };
