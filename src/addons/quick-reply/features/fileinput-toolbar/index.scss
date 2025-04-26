@@ -1,22 +1,11 @@
 #quick-reply {
-  #upload {
-    /* Extend file input styling to entire row */
-    background-color: white;
-    border: 1px solid;
+  /* Hide legacy spoiler checkbox */
+  #upload .spoiler {
+    padding-right: 0;
 
-    /* Extend cursor styling to sibling columns */
-    & > td {
-      cursor: text;
-    }
-
-    /* Hide legacy spoiler checkbox */
-    .spoiler {
-      padding-right: 0;
-
-      & > input,
-      & > label {
-        display: none;
-      }
+    & > input,
+    & > label {
+      display: none;
     }
   }
 
@@ -35,14 +24,9 @@
     }
   }
 
-  /* Defuse outline when focusing input field */
-  #upload_filename {
-    border: none;
-    outline: none;
-  }
-
   /* Style new buttons container */
   .q-toolbar-buttons {
+    --btn-size: 14px;
     display: flex;
     justify-content: end;
     align-items: center;
@@ -51,16 +35,17 @@
 
     /* Style buttons in squares */
     .btn-container {
-      --btn-size: 14px;
+      position: relative;
+      box-sizing: border-box;
       display: inline-flex;
       justify-content: center;
       align-items: center;
       width: var(--btn-size, 14px);
       height: var(--btn-size, 14px);
-      box-sizing: border-box;
       border: 1px solid;
       border-radius: 2px;
-      position: relative;
+      font-size: var(--btn-size, 14px);
+      font-family: monospace;
 
       & > *::before {
         content: "";
@@ -72,19 +57,14 @@
         cursor: pointer;
       }
 
+      // Defuse default font-size from theme
       label {
-        font-family: monospace;
-        font-size: 14px;
-        line-height: 1rem;
+        font-size: var(--btn-size, 14px);
       }
 
       a {
         text-decoration: none;
         color: inherit;
-      }
-
-      #q-remove-image {
-        padding-left: 1px;
       }
     }
 
@@ -100,6 +80,11 @@
       }
     }
   }
+
+  /* Fix monospace line-height oddity */
+  #q-remove-image {
+    padding-bottom: 2px;
+  }
 }
 
 #q-image-preview-modal {
@@ -111,7 +96,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: rgba(0,0,0,.3);
+  background-color: rgba(0, 0, 0, 0.3);
   z-index: 101;
 
   img {

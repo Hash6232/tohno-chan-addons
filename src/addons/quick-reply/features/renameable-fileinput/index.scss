@@ -1,6 +1,23 @@
 #quick-reply {
+  /* Turn table row into pseudo-input tag */
+  #upload {
+    background-color: white;
+    border: 1px solid;
+
+    /* Extend cursor styling to sibling columns */
+    & > td {
+      cursor: text;
+    }
+  }
+
   /* Hide legacy file input tag */
   #upload_file {
     display: none;
+  }
+
+  /* Defuse outline when focusing input field */
+  #upload_filename {
+    border: none;
+    outline: none;
   }
 }
