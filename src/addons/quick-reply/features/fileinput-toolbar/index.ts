@@ -1,21 +1,7 @@
 import { SelectorsEnum } from "@shared/enums";
+import { createNewButtonTemplate, createNewToggleTemplate } from "@shared/utils/uiUtils";
 import { getDataURL, getImageFromInput, hasAttachment } from "@shared/utils/uploadUtils";
 import "./index.scss";
-
-const createNewButton = (id: string, label: string, title: string) => {
-  return (
-    `<div title="${title}" class="btn-container btn">` + `<a id="${id}" href="javascript:;">${label}</a>` + `</div>`
-  );
-};
-
-const createNewToggle = (id: string, name: string, label: string, title: string) => {
-  return (
-    `<div title="${title}" class="btn-container toggle">` +
-    `<input id="${id}" class="btn-toggle" name="${name}" type="checkbox" />` +
-    `<label for="${id}">${label}</label>` +
-    `</div>`
-  );
-};
 
 const handleChangeFileinput = (e: Event) => {
   const fileinput = e.target as HTMLInputElement | null;
@@ -47,7 +33,7 @@ const handlePreviewImage = (fileinput: HTMLInputElement) => {
     if (!url) return;
 
     const modal = document.createElement("div");
-    modal.id = "q-image-preview-modal";
+    modal.id = "image-preview-modal";
     modal.innerHTML = `<img src="${url}" />`;
     document.body.appendChild(modal);
 
@@ -74,24 +60,30 @@ const fileinputToolbar = () => {
   const btnContainer = document.createElement("div");
   btnContainer.className = "q-toolbar-buttons";
   spoilerCol.appendChild(btnContainer);
-  for (const button of [
-    createNewButton("q-preview-image", "P", "Preview image"),
-    createNewToggle("q-spoiler-image-custom", "spoiler", "S", "Spoiler image"),
-    createNewButton("q-remove-image", "×", "Remove attachment"),
-  ])
-    btnContainer.insertAdjacentHTML("beforeend", button);
 
-  const previewToggle = document.getElementById("q-preview-image") as HTMLAnchorElement;
-  const removeImageBtn = document.getElementById("q-remove-image") as HTMLAnchorElement;
+  const previewImageButtonTemplate = { label: "P", title: "Preview image" };
+  btnContainer.insertAdjacentHTML("beforeend", createNewButtonTemplate(previewImageButtonTemplate));
+  const previewImageToggle = btnContainer.lastElementChild as HTMLAnchorElement;
+  previewImageToggle.id = "q-preview-image";
+
+  const spoilerImageToggleTemplate = { label: "S", title: "Spoiler image", id: "q-spoiler-image-custom" };
+  btnContainer.insertAdjacentHTML("beforeend", createNewToggleTemplate(spoilerImageToggleTemplate));
+  const spoilerImageToggle = btnContainer.lastElementChild as HTMLInputElement;
+  spoilerImageToggle.name = "spoiler";
+
+  const removeAttachmentButtonTemplate = { label: "×", title: "Remove attachment" };
+  btnContainer.insertAdjacentHTML("beforeend", createNewButtonTemplate(removeAttachmentButtonTemplate));
+  const removeAttachmentButton = btnContainer.lastElementChild as HTMLAnchorElement;
+  removeAttachmentButton.id = "q-remove-attachment";
 
   // Describe fileinput content when a file is attached
   fileinput.addEventListener("change", handleChangeFileinput);
 
   // Toggle image preview modal
-  previewToggle.addEventListener("click", () => handlePreviewImage(fileinput));
+  previewImageToggle.addEventListener("click", () => handlePreviewImage(fileinput));
 
   // Clear fileinput on button click
-  removeImageBtn.addEventListener("click", () => handleResetFileinput(fileinput));
+  removeAttachmentButton.addEventListener("click", () => handleResetFileinput(fileinput));
 };
 
 export default fileinputToolbar;
