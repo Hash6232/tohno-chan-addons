@@ -7,7 +7,6 @@ import renameableFilename from "./features/renameable-filename";
 
 const main = () => {
   renameableFilename();
-  customFormattingButtons();
   clearFormOnCancel();
   clipboardImagePaste();
   fileinputToolbar();
