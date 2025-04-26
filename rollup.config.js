@@ -4,7 +4,7 @@ import typescript from "@rollup/plugin-typescript";
 import fs from "fs";
 import path from "path";
 import { defineConfig } from "rollup";
-import scss from "rollup-plugin-scss";
+import styles from "rollup-plugin-styler";
 
 const sourceDir = "./src/addons";
 
@@ -26,11 +26,8 @@ const outputs = addons.map(([addonName, inputFile]) => ({
       entries: [{ find: "@shared", replacement: path.resolve("./src/shared") }],
     }),
     typescript(),
-    scss({
-      output: false,
-      insert: true,
-      outputStyle: "compressed",
-      silenceDeprecations: ["legacy-js-api"],
+    styles({
+      minimize: true
     }),
     terser(),
   ],
