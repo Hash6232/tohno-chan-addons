@@ -14,6 +14,14 @@ export const getImageFromInput = (fileinput: HTMLInputElement) => {
   return fileIsImage(file) ? file : null;
 };
 
+export const getImageFromClipboard = (clipboard: DataTransferItemList) => {
+  if (clipboard.length > 1) return null;
+
+  const file = clipboard[0].getAsFile();
+
+  return file && fileIsImage(file) ? file : null;
+};
+
 type DataURL = string | ArrayBuffer | null;
 
 export const getDataURL = (file: File): Promise<DataURL | undefined> => {

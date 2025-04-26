@@ -1,4 +1,5 @@
 import { SelectorsEnum } from "@shared/enums";
+import { getImageFromClipboard } from "@shared/utils/uploadUtils";
 
 const clipboardImagePaste = () => {
   const textarea = document.querySelector(SelectorsEnum.QR_TEXTAREA) as HTMLTextAreaElement | null;
@@ -8,21 +9,15 @@ const clipboardImagePaste = () => {
   textarea?.addEventListener("paste", (e) => {
     const clipboard = e.clipboardData?.items;
 
-    // Only proceed if at most one element in clipboard;
-    if (!clipboard || clipboard.length > 1) return;
+    if (!clipboard) return;
 
-    const item = clipboard[0];
+    const image = getImageFromClipboard(clipboard);
 
-    // Ignore anything that isn't an image
-    if (!item.type.startsWith("image/")) return;
-
-    const file = item.getAsFile();
-
-    if (!file || !fileinput) return;
+    if (!image || !fileinput) return;
 
     // Create a DataTransfer object to simulate a file upload
     const dataTransfer = new DataTransfer();
-    dataTransfer.items.add(file);
+    dataTransfer.items.add(image);
 
     // Assign the file to the input field
     fileinput.files = dataTransfer.files;
