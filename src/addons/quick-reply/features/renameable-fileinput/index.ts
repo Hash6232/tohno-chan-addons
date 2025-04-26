@@ -1,4 +1,5 @@
 import { SelectorsEnum } from "@shared/enums";
+import { hasAttachment } from "@shared/utils/uploadUtils";
 import "./index.scss";
 
 const handleFilenameClick = (fileinput: HTMLInputElement) => {
@@ -6,31 +7,16 @@ const handleFilenameClick = (fileinput: HTMLInputElement) => {
   fileinput.click();
 };
 
-const handleFileinputChange = (event: Event, filename: HTMLInputElement) => {
-  const fileinput = event.target as HTMLInputElement | null;
+const handleFilenameBlur = (e: Event, fileinput: HTMLInputElement) => {
+  const filename = e.target as HTMLInputElement | null;
 
-  if (!fileinput) return;
+  if (!filename || !hasAttachment(fileinput)) return;
 
-  if ((fileinput.files?.length ?? 0) < 1) {
-    filename.value = "";
-    return;
-  }
-  
-  filename.value = fileinput.files![0].name;
-
-  // Place cursor at the end of the field
-  const length = filename.value.length;
-  filename.setSelectionRange(length, length);
-};
-
-const handleFileinputCancel = (filename: HTMLInputElement) => {
-  filename.blur();
-};
-
-const handleFormSubmit = (fileinput: HTMLInputElement, filename: HTMLInputElement) => {
-  if ((fileinput.files?.length ?? 0) < 1) return;
   const originalFile = fileinput.files![0];
   const newFileName = filename.value;
+
+  // Skip if filename is the same as before
+  if (originalFile.name === newFileName) return;
 
   // Create a new File object with the updated filename
   const updatedFile = new File([originalFile], newFileName, {
@@ -42,6 +28,27 @@ const handleFormSubmit = (fileinput: HTMLInputElement, filename: HTMLInputElemen
   const dataTransfer = new DataTransfer();
   dataTransfer.items.add(updatedFile);
   fileinput.files = dataTransfer.files;
+};
+
+const handleFileinputChange = (event: Event, filename: HTMLInputElement) => {
+  const fileinput = event.target as HTMLInputElement | null;
+
+  if (!fileinput) return;
+
+  if ((fileinput.files?.length ?? 0) < 1) {
+    filename.value = "";
+    return;
+  }
+
+  filename.value = fileinput.files![0].name;
+
+  // Place cursor at the end of the field
+  const length = filename.value.length;
+  filename.setSelectionRange(length, length);
+};
+
+const handleFileinputCancel = (filename: HTMLInputElement) => {
+  filename.blur();
 };
 
 const renameableFileinput = () => {
@@ -67,7 +74,7 @@ const renameableFileinput = () => {
   fileinput.addEventListener("cancel", () => handleFileinputCancel(filename));
 
   // Apply new filename once the input field loses focus
-  form.addEventListener("submit", () => handleFormSubmit(fileinput, filename));
+  filename.addEventListener("blur", (e) => handleFilenameBlur(e, fileinput));
 };
 
 export default renameableFileinput;
