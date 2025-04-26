@@ -19,5 +19,7 @@
   #upload_filename {
     border: none;
     outline: none;
+    /* Revert default spacing */
+    padding-bottom: 0;
   }
 }
