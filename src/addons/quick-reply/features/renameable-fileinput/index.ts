@@ -44,7 +44,7 @@ const handleFormSubmit = (fileinput: HTMLInputElement, filename: HTMLInputElemen
   fileinput.files = dataTransfer.files;
 };
 
-const renameableFilename = () => {
+const renameableFileinput = () => {
   const form = document.querySelector(SelectorsEnum.QR) as HTMLFormElement | null;
   const fileinput = document.querySelector(SelectorsEnum.QR_FILEINPUT) as HTMLInputElement | null;
   const spoilerCol = document.querySelector(SelectorsEnum.QR_SPOILER_COL) as HTMLTableColElement | null;
@@ -70,4 +70,4 @@ const renameableFilename = () => {
   form.addEventListener("submit", () => handleFormSubmit(fileinput, filename));
 };
 
-export default renameableFilename;
+export default renameableFileinput;

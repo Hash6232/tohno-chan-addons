@@ -3,10 +3,10 @@ import { runWhenElementExists } from "@shared/utils/globalUtils";
 import clearFormOnCancel from "./features/clear-form-on-cancel";
 import clipboardImagePaste from "./features/clipboard-image-paste";
 import fileinputToolbar from "./features/fileinput-toolbar";
-import renameableFilename from "./features/renameable-filename";
+import renameableFileinput from "./features/renameable-fileinput";
 
 const main = () => {
-  renameableFilename();
+  renameableFileinput();
   clearFormOnCancel();
   clipboardImagePaste();
   fileinputToolbar();
