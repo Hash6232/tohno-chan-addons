@@ -1,7 +1,7 @@
 import { SelectorsEnum } from "@shared/enums";
 
 const handleCloseButtonClick = () => {
-  const textarea = document.querySelector(SelectorsEnum.POST_FORM_TEXTAREA) as HTMLTextAreaElement | null;
+  const textarea = document.querySelector(SelectorsEnum.FORM_TEXTAREA) as HTMLTextAreaElement | null;
 
   if (!textarea) return;
 
