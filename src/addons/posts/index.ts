@@ -1,5 +1,5 @@
 import { SelectorsEnum } from "@shared/enums";
-import { lazyLoading, runOnDOMLoaded } from "@shared/utils";
+import { lazyLoading, runOnDOMLoaded } from "@shared/utils/globalUtils";
 import { addRelativeTime } from "./features/add-relative-time";
 
 const main = () => {

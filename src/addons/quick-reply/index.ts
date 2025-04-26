@@ -1,5 +1,5 @@
 import { SelectorsEnum } from "@shared/enums";
-import { runWhenElementExists } from "@shared/utils";
+import { runWhenElementExists } from "@shared/utils/globalUtils";
 import clearFormOnCancel from "./features/clear-form-on-cancel";
 import clipboardImagePaste from "./features/clipboard-image-paste";
 import fileinputToolbar from "./features/fileinput-toolbar";

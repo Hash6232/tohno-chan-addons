@@ -1,4 +1,4 @@
-import { getRelativeTime } from "@shared/utils";
+import { getRelativeTime } from "@shared/utils/globalUtils";
 
 const handleCursorHover = (e: MouseEvent) => {
   const time = e.currentTarget as HTMLTimeElement | null;
