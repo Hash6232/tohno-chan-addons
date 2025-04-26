@@ -1,0 +1,121 @@
+#quick-reply {
+  #upload {
+    /* Extend file input styling to entire row */
+    background-color: white;
+    border: 1px solid;
+
+    /* Extend cursor styling to sibling columns */
+    & > td {
+      cursor: text;
+    }
+
+    /* Hide legacy spoiler checkbox */
+    .spoiler {
+      padding-right: 0;
+
+      & > input,
+      & > label {
+        display: none;
+      }
+    }
+  }
+
+  /* Hide toolbar when no file is attached */
+  &:has(#upload_file:not(.has-attachment)) {
+    .q-toolbar-buttons {
+      display: none;
+    }
+  }
+
+  /* Hide buttons when no image is attached */
+  &:has(#upload_file:not(.has-image)) {
+    .btn-container:has(#q-preview-image),
+    .btn-container:has(#q-spoiler-image-custom) {
+      display: none;
+    }
+  }
+
+  /* Defuse outline when focusing input field */
+  #upload_filename {
+    border: none;
+    outline: none;
+  }
+
+  /* Style new buttons container */
+  .q-toolbar-buttons {
+    display: flex;
+    justify-content: end;
+    align-items: center;
+    gap: 4px;
+    padding-right: 2px;
+
+    /* Style buttons in squares */
+    .btn-container {
+      --btn-size: 14px;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      width: var(--btn-size, 14px);
+      height: var(--btn-size, 14px);
+      box-sizing: border-box;
+      border: 1px solid;
+      border-radius: 2px;
+      position: relative;
+
+      & > *::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        cursor: pointer;
+      }
+
+      label {
+        font-family: monospace;
+        font-size: 14px;
+        line-height: 1rem;
+      }
+
+      a {
+        text-decoration: none;
+        color: inherit;
+      }
+
+      #q-remove-image {
+        padding-left: 1px;
+      }
+    }
+
+    /* Hide/Show checkbox based on state */
+    input[type="checkbox"] {
+      margin: 0;
+      padding: 0;
+
+      &:not(:checked),
+      &:checked + label,
+      &:checked + .btn-container {
+        display: none;
+      }
+    }
+  }
+}
+
+#q-image-preview-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0,0,0,.3);
+  z-index: 101;
+
+  img {
+    max-width: 100%;
+    max-height: 100%;
+  }
+}

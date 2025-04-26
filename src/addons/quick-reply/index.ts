@@ -2,7 +2,7 @@ import { SelectorsEnum } from "@shared/enums";
 import { runWhenElementExists } from "@shared/utils";
 import clearFormOnCancel from "./features/clear-form-on-cancel";
 import clipboardImagePaste from "./features/clipboard-image-paste";
-import customFormattingButtons from "./features/custom-formatting-buttons";
+import fileinputToolbar from "./features/fileinput-toolbar";
 import renameableFilename from "./features/renameable-filename";
 
 const main = () => {
@@ -10,6 +10,7 @@ const main = () => {
   customFormattingButtons();
   clearFormOnCancel();
   clipboardImagePaste();
+  fileinputToolbar();
 };
 
 try {
