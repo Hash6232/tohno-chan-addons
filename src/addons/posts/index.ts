@@ -15,7 +15,7 @@ const main = () => {
 };
 
 try {
-  runOnDOMLoaded(main, SelectorsEnum.POST_FORM);
+  runOnDOMLoaded(main, SelectorsEnum.FORM);
 } catch (err) {
   console.log("[posts-addon]", err);
 }

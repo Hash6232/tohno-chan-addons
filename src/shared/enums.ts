@@ -1,10 +1,16 @@
 export const enum SelectorsEnum {
+  CATALOG = "body > div.#Grid",
+  CATALOG_THREAD = SelectorsEnum.CATALOG + " > div.mix",
   INDEX = "body > form[name='postcontrols']",
-  CATALOG = "body > div.threads",
   THREAD = SelectorsEnum.INDEX + " .thread",
   POST = SelectorsEnum.THREAD + " .post",
-  POST_FORM = "body > form[name='post']",
-  POST_FORM_TEXTAREA = SelectorsEnum.POST_FORM + " textarea[name='body']",
+
+  FORM = "body > form[name='post']",
+  FORM_TEXTAREA = SelectorsEnum.FORM + " textarea[name='body']",
+  FORM_FORMATTING_ROW = SelectorsEnum.FORM + " tr:has(input[name='b'])",
+  FORM_UPLOAD_ROW = SelectorsEnum.FORM + " #upload",
+  FORM_SPOILER_COL = SelectorsEnum.FORM + " .spoiler",
+  FORM_UPLOAD_FILE = SelectorsEnum.FORM + " #upload_file",
 
   QR = "form#quick-reply",
   QR_CLOSE = SelectorsEnum.QR + " a.close-btn",
