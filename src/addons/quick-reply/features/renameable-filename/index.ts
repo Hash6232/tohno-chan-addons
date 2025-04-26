@@ -6,8 +6,16 @@ const handleFilenameClick = (fileinput: HTMLInputElement) => {
   fileinput.click();
 };
 
-const handleFileinputChange = (fileinput: HTMLInputElement, filename: HTMLInputElement) => {
-  if ((fileinput.files?.length ?? 0) < 1) return;
+const handleFileinputChange = (event: Event, filename: HTMLInputElement) => {
+  const fileinput = event.target as HTMLInputElement | null;
+
+  if (!fileinput) return;
+
+  if ((fileinput.files?.length ?? 0) < 1) {
+    filename.value = "";
+    return;
+  }
+  
   filename.value = fileinput.files![0].name;
 
   // Place cursor at the end of the field
@@ -55,7 +63,7 @@ const renameableFilename = () => {
   filename.addEventListener("click", () => handleFilenameClick(fileinput));
 
   // Update filename field when a file is attached
-  fileinput.addEventListener("change", () => handleFileinputChange(fileinput, filename));
+  fileinput.addEventListener("change", (e) => handleFileinputChange(e, filename));
   fileinput.addEventListener("cancel", () => handleFileinputCancel(filename));
 
   // Apply new filename once the input field loses focus
