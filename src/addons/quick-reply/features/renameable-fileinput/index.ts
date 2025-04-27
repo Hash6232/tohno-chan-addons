@@ -58,7 +58,7 @@ const renameableFileinput = () => {
 
   fileinput.insertAdjacentHTML(
     "afterend",
-    `<input id="upload_filename" type="text" name="filename" placeholder="Click to upload file" />`
+    `<input id="upload_filename" type="text" placeholder="Click to upload file" />`
   );
   const filename = document.getElementById("upload_filename") as HTMLInputElement | null;
 
