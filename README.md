@@ -1,6 +1,6 @@
-# tohno-chan-addons
+# tohno-chan-tweaks
 
-Collection of atomic injectble tweaks for tohno-chan (vichan).
+Collection of tweaks for tohno-chan (vichan).
 
 ## Posts
 
@@ -18,22 +18,22 @@ Collection of atomic injectble tweaks for tohno-chan (vichan).
 
 ## Hot to use
 
-Inject the scripts however you prefer. I personally use a dummy user script and inject vichan dependencies using the `@require` rule when needed.
+I personally use a dummy user script as entrypoint and inject vichan dependencies using `@require` when needed.
 
 > [!TIP]
 > You can use [git-hack](https://raw.githack.com/) and directly reference the scripts in this repo using their CDN.
 
 ```js
 // ==UserScript==
-// @name        Inject vichan scripts
-// @namespace   vichan-scripts-inject
+// @name        Tweaks for tohno-chan
+// @namespace   tohno-chan-tweaks
 // @match       https://www.tohno-chan.org/*
 // @grant       none
 // @version     1.0
 // @run-at      document-end
 // ==/UserScript==
 
-const script1 = document.createElement("script");
-script1.src = "path/to/script1";
-document.head.appendChild(script1);
+const script = document.createElement("script");
+script.src = "path/to/script";
+document.head.appendChild(script);
 ```
