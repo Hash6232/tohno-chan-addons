@@ -68,7 +68,7 @@ const fileinputToolbar = () => {
 
   if (!fileinput || !spoilerCol) return;
 
-  // Add preview, randomize and clear buttons next so spoiler toggle
+  // Add toolbar and its buttons
   const btnContainer = document.createElement("div");
   btnContainer.className = "q-toolbar-buttons";
   spoilerCol.appendChild(btnContainer);
