@@ -3,7 +3,7 @@ import { Data } from "@shared/utils/globalUtils";
 import "./index.scss";
 
 const handleFilenameClick = (fileinput: HTMLInputElement) => {
-  if ((fileinput.files?.length ?? 1) > 0) return;
+  if (Data.Form.hasFile(fileinput)) return;
   fileinput.click();
 };
 
@@ -30,7 +30,7 @@ const handleFileinputChange = (event: Event, filename: HTMLInputElement) => {
 
   if (!fileinput) return;
 
-  if ((fileinput.files?.length ?? 0) < 1) {
+  if (!Data.Form.hasFile(fileinput)) {
     filename.value = "";
     return;
   }
@@ -53,10 +53,8 @@ const renameableFileinput = () => {
 
   if (!fileinput || !spoilerCol) return;
 
-  fileinput.insertAdjacentHTML(
-    "afterend",
-    `<input id="upload_filename" type="text" placeholder="Click to upload file" />`
-  );
+  const inputFieldTemplate = `<input id="upload_filename" type="text" placeholder="Click to upload file" />`;
+  fileinput.insertAdjacentHTML("afterend", inputFieldTemplate);
   const filename = document.getElementById("upload_filename") as HTMLInputElement | null;
 
   if (!form || !filename) return;
