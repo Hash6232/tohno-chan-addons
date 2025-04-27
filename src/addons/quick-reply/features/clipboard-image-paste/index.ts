@@ -1,5 +1,5 @@
 import { SelectorsEnum } from "@shared/enums";
-import { getImageFromClipboard } from "@shared/utils/uploadUtils";
+import { Data } from "@shared/utils/globalUtils";
 
 const clipboardImagePaste = () => {
   const textarea = document.querySelector(SelectorsEnum.QR_TEXTAREA) as HTMLTextAreaElement | null;
@@ -7,11 +7,11 @@ const clipboardImagePaste = () => {
 
   // Handle paste event when textarea has focus
   textarea?.addEventListener("paste", (e) => {
-    const clipboard = e.clipboardData?.items;
+    const clipboard = e.clipboardData;
 
     if (!clipboard) return;
 
-    const image = getImageFromClipboard(clipboard);
+    const image = Data.Clipboard.getImage(clipboard);
 
     if (!image || !fileinput) return;
 

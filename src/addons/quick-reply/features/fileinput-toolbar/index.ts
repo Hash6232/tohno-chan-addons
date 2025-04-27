@@ -1,6 +1,6 @@
 import { SelectorsEnum } from "@shared/enums";
+import { Data } from "@shared/utils/globalUtils";
 import { createNewButtonTemplate, createNewToggleTemplate } from "@shared/utils/uiUtils";
-import { getDataURL, getImageFromInput, hasAttachment } from "@shared/utils/uploadUtils";
 import "./index.scss";
 
 const handleChangeFileinput = (e: Event) => {
@@ -9,7 +9,7 @@ const handleChangeFileinput = (e: Event) => {
   if (!fileinput) return;
 
   // Reset toolbar display when no file is attached
-  if (!hasAttachment(fileinput)) {
+  if (!Data.Form.hasFile(fileinput)) {
     fileinput.classList.toggle("has-attachment", false);
     fileinput.classList.toggle("has-image", false);
     return;
@@ -17,19 +17,19 @@ const handleChangeFileinput = (e: Event) => {
 
   fileinput.classList.toggle("has-attachment", true);
 
-  const image = getImageFromInput(fileinput);
+  const image = Data.Form.getFiles(fileinput)?.[0];
 
-  if (!image) return;
+  if (!image || !Data.isImage(image)) return;
 
   fileinput.classList.toggle("has-image", true);
 };
 
 const handlePreviewImage = (fileinput: HTMLInputElement) => {
-  const image = getImageFromInput(fileinput);
+  const image = Data.Form.getFiles(fileinput)?.[0];
 
-  if (!image) return;
+  if (!image || !Data.isImage(image)) return;
 
-  getDataURL(image).then((url) => {
+  Data.getDataURL(image).then((url) => {
     if (!url) return;
 
     const modal = document.createElement("div");

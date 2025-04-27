@@ -1,11 +1,11 @@
-import { getRelativeTime } from "@shared/utils/globalUtils";
+import { Time } from "@shared/utils/globalUtils";
 
 const handleCursorHover = (e: MouseEvent) => {
   const time = e.currentTarget as HTMLTimeElement | null;
 
   if (!time) return;
 
-  time.title = getRelativeTime(time.dateTime);
+  time.title = Time.dateStringToRelative(time.dateTime);
 };
 
 const addRelativeTime = (post: HTMLElement) => {

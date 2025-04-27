@@ -1,5 +1,5 @@
 import { SelectorsEnum } from "@shared/enums";
-import { hasAttachment } from "@shared/utils/uploadUtils";
+import { Data } from "@shared/utils/globalUtils";
 import "./index.scss";
 
 const handleFilenameClick = (fileinput: HTMLInputElement) => {
@@ -10,7 +10,7 @@ const handleFilenameClick = (fileinput: HTMLInputElement) => {
 const handleFilenameBlur = (e: Event, fileinput: HTMLInputElement) => {
   const filename = e.target as HTMLInputElement | null;
 
-  if (!filename || !hasAttachment(fileinput)) return;
+  if (!filename || !Data.Form.hasFile(fileinput)) return;
 
   const originalFile = fileinput.files![0];
   const newFileName = filename.value;

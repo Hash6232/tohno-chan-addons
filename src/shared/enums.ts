@@ -16,3 +16,8 @@ export const enum SelectorsEnum {
   QR_FILEINPUT = SelectorsEnum.QR + " #upload_file",
   QR_SPOILER_COL = SelectorsEnum.QR_UPLOAD_ROW + " .spoiler",
 }
+
+export const enum ErrorsEnum {
+  RES_FAILED = "Request failed with status code: ",
+  WRONG_FILE_TYPE = "Wrong file type: "
+}

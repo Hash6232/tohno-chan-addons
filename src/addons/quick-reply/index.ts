@@ -1,5 +1,5 @@
 import { SelectorsEnum } from "@shared/enums";
-import { runWhenElementExists } from "@shared/utils/globalUtils";
+import { DOM } from "@shared/utils/globalUtils";
 import clearFormOnCancel from "./features/clear-form-on-cancel";
 import clipboardImagePaste from "./features/clipboard-image-paste";
 import fileinputToolbar from "./features/fileinput-toolbar";
@@ -13,7 +13,7 @@ const main = () => {
 };
 
 try {
-  runWhenElementExists(main, SelectorsEnum.QR);
+  DOM.onElementLoaded(main, SelectorsEnum.QR);
 } catch (err) {
   console.log("[quick-reply-addon]", err);
 }
