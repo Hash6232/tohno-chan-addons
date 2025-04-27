@@ -13,7 +13,8 @@ const handleFilenameBlur = (e: Event, fileinput: HTMLInputElement) => {
   if (!filename || !Data.Form.hasFile(fileinput)) return;
 
   const originalFile = fileinput.files![0];
-  const newFileName = filename.value;
+  // Fallback to orignal filename if empty string
+  const newFileName = filename.value || originalFile.name;
 
   // Skip if filename is the same as before
   if (originalFile.name === newFileName) return;
