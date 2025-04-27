@@ -18,11 +18,8 @@ const handleFilenameBlur = (e: Event, fileinput: HTMLInputElement) => {
   // Skip if filename is the same as before
   if (originalFile.name === newFileName) return;
 
-  // Create a new File object with the updated filename
-  const updatedFile = new File([originalFile], newFileName, {
-    type: originalFile.type,
-    lastModified: originalFile.lastModified,
-  });
+  // Update original file with new filename
+  const updatedFile = Data.updateFile(originalFile, { filename: newFileName });
 
   // Replace the file input's file list with the new file
   Data.Form.addFile(fileinput, updatedFile);

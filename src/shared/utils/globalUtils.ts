@@ -1,6 +1,13 @@
 import { ErrorsEnum } from "@shared/enums";
 
 export namespace Data {
+  export const updateFile = (file: File, options: { filename?: string; lastModified?: number }) => {
+    return new File([file], options.filename ?? file.name, {
+      type: file.type,
+      lastModified: options.lastModified ?? file.lastModified,
+    });
+  };
+
   export const isImage = (file: File | Blob) => {
     return file.type.startsWith("image/");
   };
