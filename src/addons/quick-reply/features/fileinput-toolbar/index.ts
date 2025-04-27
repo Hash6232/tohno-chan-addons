@@ -44,6 +44,18 @@ const handlePreviewImage = (fileinput: HTMLInputElement) => {
   });
 };
 
+const handleImportImage = (fileinput: HTMLInputElement) => {
+  const url = prompt("Enter a valid image URL:");
+
+  if (!url) return;
+
+  Data.Fetch.getImage(url).then((file) => {
+    if (!file) return;
+
+    Data.Form.addFile(fileinput, file);
+  });
+};
+
 const handleResetFileinput = (fileinput: HTMLInputElement) => {
   fileinput.value = "";
 
@@ -73,6 +85,11 @@ const fileinputToolbar = () => {
   spoilerImageToggle.name = "spoiler";
   spoilerImageToggle.dataset.if = "image";
 
+  const importImageButtonTemplate = { label: "U", title: "Import image from URL" };
+  btnContainer.insertAdjacentHTML("beforeend", createNewButtonTemplate(importImageButtonTemplate));
+  const importImageButton = btnContainer.lastElementChild as HTMLAnchorElement;
+  importImageButton.id = "q-import-image";
+
   const removeAttachmentButtonTemplate = { label: "×", title: "Remove attachment" };
   btnContainer.insertAdjacentHTML("beforeend", createNewButtonTemplate(removeAttachmentButtonTemplate));
   const removeAttachmentButton = btnContainer.lastElementChild as HTMLAnchorElement;
@@ -84,6 +101,9 @@ const fileinputToolbar = () => {
 
   // Toggle image preview modal
   previewImageToggle.addEventListener("click", () => handlePreviewImage(fileinput));
+
+  // Open browser modal to input an image URL
+  importImageButton.addEventListener("click", () => handleImportImage(fileinput));
 
   // Clear fileinput on button click
   removeAttachmentButton.addEventListener("click", () => handleResetFileinput(fileinput));
