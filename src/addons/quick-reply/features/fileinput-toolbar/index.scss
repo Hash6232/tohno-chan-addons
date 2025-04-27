@@ -11,15 +11,14 @@
 
   /* Hide toolbar when no file is attached */
   &:has(#upload_file:not(.has-attachment)) {
-    .q-toolbar-buttons {
+    .btn-container[data-if="attachment"] {
       display: none;
     }
   }
 
   /* Hide buttons when no image is attached */
   &:has(#upload_file:not(.has-image)) {
-    .btn-container:has(#q-preview-image),
-    .btn-container:has(#q-spoiler-image-custom) {
+    .btn-container[data-if="image"] {
       display: none;
     }
   }

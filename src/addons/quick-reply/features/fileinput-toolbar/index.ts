@@ -65,16 +65,19 @@ const fileinputToolbar = () => {
   btnContainer.insertAdjacentHTML("beforeend", createNewButtonTemplate(previewImageButtonTemplate));
   const previewImageToggle = btnContainer.lastElementChild as HTMLAnchorElement;
   previewImageToggle.id = "q-preview-image";
+  previewImageToggle.dataset.if = "image";
 
   const spoilerImageToggleTemplate = { label: "S", title: "Spoiler image", id: "q-spoiler-image-custom" };
   btnContainer.insertAdjacentHTML("beforeend", createNewToggleTemplate(spoilerImageToggleTemplate));
   const spoilerImageToggle = btnContainer.lastElementChild as HTMLInputElement;
   spoilerImageToggle.name = "spoiler";
+  spoilerImageToggle.dataset.if = "image";
 
   const removeAttachmentButtonTemplate = { label: "×", title: "Remove attachment" };
   btnContainer.insertAdjacentHTML("beforeend", createNewButtonTemplate(removeAttachmentButtonTemplate));
   const removeAttachmentButton = btnContainer.lastElementChild as HTMLAnchorElement;
   removeAttachmentButton.id = "q-remove-attachment";
+  removeAttachmentButton.dataset.if = "attachment";
 
   // Describe fileinput content when a file is attached
   fileinput.addEventListener("change", handleChangeFileinput);
