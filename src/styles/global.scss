@@ -1,0 +1,9 @@
+@use "variables";
+
+#quick-reply {
+  /* Clean-up */
+  & > hr,
+  tr:last-of-type {
+    display: none;
+  }
+}

@@ -2,10 +2,10 @@ import alias from "@rollup/plugin-alias";
 import typescript from "@rollup/plugin-typescript";
 import styles from "rollup-plugin-styler";
 
-const createConfig = (filename, path) => ({
-  input: path,
+export default {
+  input: "src/index.ts",
   output: {
-    file: "dist/" + filename + "-addon.js",
+    file: "dist/tohno-chan-addons.js",
     format: "iife",
     sourcemap: true,
   },
@@ -21,9 +21,4 @@ const createConfig = (filename, path) => ({
       mode: ["inject", { singleTag: true }],
     }),
   ],
-});
-
-export default [
-  createConfig("posts", "src/addons/posts/index.ts"),
-  createConfig("quick-reply", "src/addons/quick-reply/index.ts"),
-];
+};
