@@ -18,7 +18,7 @@ const createConfig = (filename, path) => ({
     }),
     styles({
       minimize: true,
-      mode: ["inject", { container: "head", singleTag: true }],
+      mode: ["inject", { singleTag: true }],
     }),
   ],
 });
