@@ -25,9 +25,7 @@ const handleFilenameBlur = (e: Event, fileinput: HTMLInputElement) => {
   });
 
   // Replace the file input's file list with the new file
-  const dataTransfer = new DataTransfer();
-  dataTransfer.items.add(updatedFile);
-  fileinput.files = dataTransfer.files;
+  Data.Form.addFile(fileinput, updatedFile);
 };
 
 const handleFileinputChange = (event: Event, filename: HTMLInputElement) => {

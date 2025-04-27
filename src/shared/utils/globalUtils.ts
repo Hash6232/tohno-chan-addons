@@ -61,6 +61,15 @@ export namespace Data {
     export const getFiles = (input: HTMLInputElement) => {
       return hasFile(input) ? input.files : null;
     };
+
+    export const addFile = (input: HTMLInputElement, file: File) => {
+      const dataTransfer = new DataTransfer();
+      dataTransfer.items.add(file);
+
+      input.files = dataTransfer.files;
+
+      input.dispatchEvent(new Event("change", { bubbles: true }));
+    };
   }
 }
 
