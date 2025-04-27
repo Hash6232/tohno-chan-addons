@@ -1,2 +1,176 @@
-!function(){"use strict";var e,t,o;!function(e){var t;e.updateFile=(e,t)=>new File([e],t.filename??e.name,{type:e.type,lastModified:t.lastModified??e.lastModified}),e.isImage=e=>e.type.startsWith("image/"),e.getDataURL=e=>new Promise(((t,o)=>{const n=new FileReader;n.addEventListener("load",(({target:e})=>{t(e?.result)})),n.addEventListener("error",(e=>{o(e)})),n.readAsDataURL(e)})),(e.Clipboard||(e.Clipboard={})).getImage=t=>{if(1!==t.files.length)return null;const o=t.files[0];return e.isImage(o)?o:null},(e.Fetch||(e.Fetch={})).getImage=async t=>{try{const o=await fetch(t);if(!o.ok)throw new Error("Request failed with status code: "+o.status);const n=await o.blob();if(!e.isImage(n))throw new Error("Wrong file type: "+n.type);const r=new URL(t).pathname.split("/").pop()??"file";return new File([n],r,{type:n.type})}catch(e){console.log(e)}},(t=e.Form||(e.Form={})).hasFile=e=>(e.files?.length??0)>0,t.getFiles=e=>t.hasFile(e)?e.files:null,t.addFile=(e,t)=>{const o=new DataTransfer;o.items.add(t),e.files=o.files,e.dispatchEvent(new Event("change",{bubbles:!0}))}}(e||(e={})),function(e){e.onContentLoaded=(e,t)=>{for(const o of[t].flat())if(o)return void e();document.addEventListener("DOMContentLoaded",(()=>e()))},e.onElementLoaded=(e,t,o=!1)=>{if(document.body.querySelector(t))return void e();new MutationObserver(((n,r)=>{for(const a of n)for(const n of a.addedNodes)if(1===n.nodeType&&n.matches(t))return e(),void(o&&r.disconnect())})).observe(document.body,{childList:!0,subtree:!0})},e.onElementVisible=(e,t,o)=>{new IntersectionObserver(((e,o)=>{e.forEach((e=>{if(e.isIntersecting&&1===e.target.nodeType){for(const o of t)o(e.target);o.unobserve(e.target)}}))}),o??{root:null,rootMargin:"0px",threshold:.1}).observe(e)}}(t||(t={})),function(e){e.dateStringToRelative=e=>{const t=new Date,o=new Date(e),n=Math.floor((t.getTime()-o.getTime())/1e3);return((e,t)=>{const o=new Intl.RelativeTimeFormat("en",{numeric:"auto"}),n=t?-1:1;if(e<60)return o.format(e*n,"second");const r=Math.floor(e/60);if(r<60)return o.format(r*n,"minute");const a=Math.floor(r/60);if(a<24)return o.format(a*n,"hour");const i=Math.floor(a/24);if(i<30)return o.format(i*n,"day");const s=Math.floor(i/30);if(s<12)return o.format(s*n,"month");const l=Math.floor(i/365);return o.format(l*n,"year")})(Math.abs(n),n>0)}}(o||(o={}));const n=e=>{const t=e.currentTarget;t&&(t.title=o.dateStringToRelative(t.dateTime))},r=e=>{const t=e.querySelector("time");t&&t.addEventListener("mouseenter",n)},a=()=>{document.querySelectorAll("body > form[name='postcontrols'] .thread .post:not(.hidden)").forEach((e=>t.onElementVisible(e,[r])))};try{t.onContentLoaded(a,"body > form[name='post']")}catch(e){console.log("[posts-addon]",e)}}();
+(function () {
+    'use strict';
+
+    var Data;
+    (function (Data) {
+        Data.updateFile = (file, options) => {
+            return new File([file], options.filename ?? file.name, {
+                type: file.type,
+                lastModified: options.lastModified ?? file.lastModified,
+            });
+        };
+        Data.isImage = (file) => {
+            return file.type.startsWith("image/");
+        };
+        Data.getDataURL = (file) => {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.addEventListener("load", ({ target }) => {
+                    resolve(target?.result);
+                });
+                reader.addEventListener("error", (err) => {
+                    reject(err);
+                });
+                reader.readAsDataURL(file);
+            });
+        };
+        (function (Clipboard) {
+            Clipboard.getImage = (clipboard) => {
+                if (clipboard.files.length !== 1)
+                    return null;
+                const image = clipboard.files[0];
+                return Data.isImage(image) ? image : null;
+            };
+        })(Data.Clipboard || (Data.Clipboard = {}));
+        (function (Fetch) {
+            Fetch.getImage = async (url) => {
+                try {
+                    const res = await fetch(url);
+                    if (!res.ok)
+                        throw new Error("Request failed with status code: " + res.status);
+                    const blob = await res.blob();
+                    if (!Data.isImage(blob))
+                        throw new Error("Wrong file type: " + blob.type);
+                    const pathname = new URL(url).pathname;
+                    const filename = pathname.split("/").pop() ?? "file";
+                    return new File([blob], filename, { type: blob.type });
+                }
+                catch (err) {
+                    console.log(err);
+                }
+            };
+        })(Data.Fetch || (Data.Fetch = {}));
+        (function (Form) {
+            Form.hasFile = (input) => {
+                return (input.files?.length ?? 0) > 0;
+            };
+            Form.getFiles = (input) => {
+                return Form.hasFile(input) ? input.files : null;
+            };
+            Form.addFile = (input, file) => {
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+                input.files = dataTransfer.files;
+                input.dispatchEvent(new Event("change", { bubbles: true }));
+            };
+        })(Data.Form || (Data.Form = {}));
+    })(Data || (Data = {}));
+    var DOM;
+    (function (DOM) {
+        DOM.onContentLoaded = (callback, query) => {
+            for (const node of [query].flat()) {
+                if (node) {
+                    callback();
+                    return;
+                }
+            }
+            document.addEventListener("DOMContentLoaded", () => callback());
+        };
+        DOM.onElementLoaded = (callback, query, cleanup = false) => {
+            if (document.body.querySelector(query)) {
+                callback();
+                return;
+            }
+            const observer = new MutationObserver((mutationsList, observerInstance) => {
+                for (const mutation of mutationsList) {
+                    for (const addedNode of mutation.addedNodes) {
+                        if (addedNode.nodeType === 1 && addedNode.matches(query)) {
+                            callback();
+                            cleanup && observerInstance.disconnect();
+                            return;
+                        }
+                    }
+                }
+            });
+            observer.observe(document.body, { childList: true, subtree: true });
+        };
+        DOM.onElementVisible = (node, callbacks, options) => {
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach((entry) => {
+                    if (!entry.isIntersecting)
+                        return;
+                    if (entry.target.nodeType !== 1)
+                        return;
+                    for (const callback of callbacks)
+                        callback(entry.target);
+                    observer.unobserve(entry.target);
+                });
+            }, options ?? {
+                root: null,
+                rootMargin: "0px",
+                threshold: 0.1,
+            });
+            observer.observe(node);
+        };
+    })(DOM || (DOM = {}));
+    var Time;
+    (function (Time) {
+        const formatToRelative = (diffInSeconds, isPast) => {
+            const rtf = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
+            const delta = isPast ? -1 : 1;
+            if (diffInSeconds < 60) {
+                return rtf.format(diffInSeconds * delta, "second");
+            }
+            const diffInMinutes = Math.floor(diffInSeconds / 60);
+            if (diffInMinutes < 60) {
+                return rtf.format(diffInMinutes * delta, "minute");
+            }
+            const diffInHours = Math.floor(diffInMinutes / 60);
+            if (diffInHours < 24) {
+                return rtf.format(diffInHours * delta, "hour");
+            }
+            const diffInDays = Math.floor(diffInHours / 24);
+            if (diffInDays < 30) {
+                return rtf.format(diffInDays * delta, "day");
+            }
+            const diffInMonths = Math.floor(diffInDays / 30);
+            if (diffInMonths < 12) {
+                return rtf.format(diffInMonths * delta, "month");
+            }
+            const diffInYears = Math.floor(diffInDays / 365);
+            return rtf.format(diffInYears * delta, "year");
+        };
+        Time.dateStringToRelative = (dateString) => {
+            const now = new Date();
+            const past = new Date(dateString);
+            const diffInSeconds = Math.floor((now.getTime() - past.getTime()) / 1000);
+            return formatToRelative(Math.abs(diffInSeconds), diffInSeconds > 0);
+        };
+    })(Time || (Time = {}));
+
+    const handleCursorHover = (e) => {
+        const time = e.currentTarget;
+        if (!time)
+            return;
+        time.title = Time.dateStringToRelative(time.dateTime);
+    };
+    const addRelativeTime = (post) => {
+        const time = post.querySelector("time");
+        if (!time)
+            return;
+        time.addEventListener("mouseenter", handleCursorHover);
+    };
+
+    const main = () => {
+        const posts = document.querySelectorAll("body > form[name='postcontrols'] .thread .post" + ":not(.hidden)");
+        posts.forEach((post) => DOM.onElementVisible(post, [addRelativeTime]));
+    };
+    try {
+        DOM.onContentLoaded(main, "body > form[name='post']");
+    }
+    catch (err) {
+        console.log("[posts-addon]", err);
+    }
+
+})();
 //# sourceMappingURL=posts-addon.js.map

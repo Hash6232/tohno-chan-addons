@@ -1,36 +1,29 @@
 import alias from "@rollup/plugin-alias";
-import terser from "@rollup/plugin-terser";
 import typescript from "@rollup/plugin-typescript";
-import fs from "fs";
-import path from "path";
-import { defineConfig } from "rollup";
 import styles from "rollup-plugin-styler";
 
-const sourceDir = "./src/addons";
-
-const addons = fs
-  .readdirSync(sourceDir)
-  .map((name) => path.join(sourceDir, name))
-  .filter((source) => fs.statSync(source).isDirectory())
-  .map((directory) => [path.basename(directory), path.join(directory, "index.ts")]);
-
-const outputs = addons.map(([addonName, inputFile]) => ({
-  input: inputFile,
+const createConfig = (filename, path) => ({
+  input: path,
   output: {
-    file: path.join("dist", addonName + "-addon.js"),
+    file: "dist/" + filename + "-addon.js",
     format: "iife",
     sourcemap: true,
   },
   plugins: [
     alias({
-      entries: [{ find: "@shared", replacement: path.resolve("./src/shared") }],
+      entries: [{ find: "@shared", replacement: "src/shared" }],
     }),
-    typescript(),
+    typescript({
+      removeComments: true,
+    }),
     styles({
-      minimize: true
+      minimize: true,
+      mode: ["inject", { container: "head", singleTag: true }],
     }),
-    terser(),
   ],
-}));
+});
 
-export default defineConfig(outputs);
+export default [
+  createConfig("posts", "src/addons/posts/index.ts"),
+  createConfig("quick-reply", "src/addons/quick-reply/index.ts"),
+];
