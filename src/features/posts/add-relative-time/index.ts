@@ -1,14 +1,14 @@
-import { Time } from "@shared/utils/globalUtils";
+import { DateUtils } from "@shared/utils/globalUtils";
 
 const handleCursorHover = (e: MouseEvent) => {
   const time = e.currentTarget as HTMLTimeElement | null;
 
   if (!time) return;
 
-  time.title = Time.dateStringToRelative(time.dateTime);
+  time.title = DateUtils.toRelative(new Date(time.dateTime));
 };
 
-const addRelativeTime = (post: HTMLElement) => {
+const addRelativeTime = (post: Element) => {
   const time = post.querySelector("time") as HTMLTimeElement | null;
 
   if (!time) return;

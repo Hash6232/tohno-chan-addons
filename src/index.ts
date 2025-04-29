@@ -1,5 +1,5 @@
 import { SelectorsEnum } from "@shared/enums";
-import { DOM } from "@shared/utils/globalUtils";
+import { DOMUtils } from "@shared/utils/globalUtils";
 import addRelativeTime from "./features/posts/add-relative-time";
 import clearFormOnCancel from "./features/quick-reply/clear-form-on-cancel";
 import clipboardImagePaste from "./features/quick-reply/clipboard-image-paste";
@@ -8,14 +8,16 @@ import renameableFileinput from "./features/quick-reply/renameable-fileinput";
 import "./styles/global.scss";
 
 const main = () => {
-  DOM.onElementLoaded(() => {
-    const posts = document.querySelectorAll(SelectorsEnum.POST + ":not(.hidden)") as NodeListOf<HTMLDivElement>;
-    posts.forEach((post) => DOM.onElementVisible(post, [
-      addRelativeTime
-    ]));
+  DOMUtils.onElementLoaded(() => {
+    const posts = document.querySelectorAll(SelectorsEnum.POST + ":not(.hidden)");
+    posts.forEach((post) =>
+      DOMUtils.onElementVisible(post, () => {
+        addRelativeTime(post);
+      })
+    );
   }, SelectorsEnum.THREAD);
 
-  DOM.onElementLoaded(() => {
+  DOMUtils.onElementLoaded(() => {
     renameableFileinput();
     clearFormOnCancel();
     clipboardImagePaste();
@@ -24,7 +26,7 @@ const main = () => {
 };
 
 try {
-  DOM.onContentLoaded(main, SelectorsEnum.FORM);
+  DOMUtils.onContentLoaded(main, SelectorsEnum.FORM);
 } catch (err) {
   console.log("[tohno-chan-addons]", err);
 }

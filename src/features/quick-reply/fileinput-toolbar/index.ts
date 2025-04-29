@@ -1,5 +1,7 @@
 import { SelectorsEnum } from "@shared/enums";
-import { Data } from "@shared/utils/globalUtils";
+
+import { FormUtils, ValidationUtils } from "@shared/utils/globalUtils";
+import ImageUtils from "@shared/utils/imageUtils";
 import { createNewButtonTemplate, createNewToggleTemplate } from "@shared/utils/uiUtils";
 import "./index.scss";
 
@@ -9,7 +11,7 @@ const handleChangeFileinput = (e: Event) => {
   if (!fileinput) return;
 
   // Reset toolbar display when no file is attached
-  if (!Data.Form.hasFile(fileinput)) {
+  if (!ValidationUtils.inputHasFile(fileinput)) {
     fileinput.classList.toggle("has-attachment", false);
     fileinput.classList.toggle("has-image", false);
     return;
@@ -17,19 +19,21 @@ const handleChangeFileinput = (e: Event) => {
 
   fileinput.classList.toggle("has-attachment", true);
 
-  const image = Data.Form.getFiles(fileinput)?.[0];
+  const file = fileinput.files![0];
 
-  if (!image || !Data.isImage(image)) return;
+  if (!ValidationUtils.fileIsImage(file)) return;
 
   fileinput.classList.toggle("has-image", true);
 };
 
 const handlePreviewImage = (fileinput: HTMLInputElement) => {
-  const image = Data.Form.getFiles(fileinput)?.[0];
+  if (!ValidationUtils.inputHasFile(fileinput)) return;
 
-  if (!image || !Data.isImage(image)) return;
+  const file = fileinput.files![0];
 
-  Data.getDataURL(image).then((url) => {
+  if (!ValidationUtils.fileIsImage(file)) return;
+
+  ImageUtils.toDataURL(file).then((url) => {
     if (!url) return;
 
     const modal = document.createElement("div");
@@ -49,10 +53,10 @@ const handleImportImage = (fileinput: HTMLInputElement) => {
 
   if (!url) return;
 
-  Data.Fetch.getImage(url).then((file) => {
+  ImageUtils.fetchImage(url).then((file) => {
     if (!file) return;
 
-    Data.Form.addFile(fileinput, file);
+    FormUtils.setInputFile(fileinput, file);
   });
 };
 

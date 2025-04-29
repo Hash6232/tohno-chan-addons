@@ -1,5 +1,5 @@
 import { SelectorsEnum } from "@shared/enums";
-import { Data } from "@shared/utils/globalUtils";
+import { FormUtils, ValidationUtils } from "@shared/utils/globalUtils";
 
 const clipboardImagePaste = () => {
   const textarea = document.querySelector(SelectorsEnum.QR_TEXTAREA) as HTMLTextAreaElement | null;
@@ -9,13 +9,13 @@ const clipboardImagePaste = () => {
   textarea?.addEventListener("paste", (e) => {
     const clipboard = e.clipboardData;
 
-    if (!clipboard) return;
+    if (!clipboard || clipboard.files.length < 1) return;
 
-    const image = Data.Clipboard.getImage(clipboard);
+    const file = clipboard.files[0];
 
-    if (!image || !fileinput) return;
+    if (!ValidationUtils.fileIsImage(file) || !fileinput) return;
 
-    Data.Form.addFile(fileinput, image);
+    FormUtils.setInputFile(fileinput, file);
   });
 };
 

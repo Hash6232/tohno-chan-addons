@@ -1,29 +1,19 @@
 import { SelectorsEnum } from "@shared/enums";
-import { Data } from "@shared/utils/globalUtils";
+
+import { FormUtils, ValidationUtils } from "@shared/utils/globalUtils";
 import "./index.scss";
 
 const handleFilenameClick = (fileinput: HTMLInputElement) => {
-  if (Data.Form.hasFile(fileinput)) return;
+  if (ValidationUtils.inputHasFile(fileinput)) return;
   fileinput.click();
 };
 
 const handleFilenameBlur = (e: Event, fileinput: HTMLInputElement) => {
   const filename = e.target as HTMLInputElement | null;
 
-  if (!filename || !Data.Form.hasFile(fileinput)) return;
+  if (!filename || !ValidationUtils.inputHasFile(fileinput)) return;
 
-  const originalFile = fileinput.files![0];
-  // Fallback to orignal filename if empty string
-  const newFileName = filename.value || originalFile.name;
-
-  // Skip if filename is the same as before
-  if (originalFile.name === newFileName) return;
-
-  // Update original file with new filename
-  const updatedFile = Data.updateFile(originalFile, { filename: newFileName });
-
-  // Replace the file input's file list with the new file
-  Data.Form.addFile(fileinput, updatedFile);
+  FormUtils.updateInputFilename(fileinput, filename.value);
 };
 
 const handleFileinputChange = (event: Event, filename: HTMLInputElement) => {
@@ -31,7 +21,7 @@ const handleFileinputChange = (event: Event, filename: HTMLInputElement) => {
 
   if (!fileinput) return;
 
-  if (!Data.Form.hasFile(fileinput)) {
+  if (!ValidationUtils.inputHasFile(fileinput)) {
     filename.value = "";
     return;
   }
