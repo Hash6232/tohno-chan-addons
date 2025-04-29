@@ -37,6 +37,49 @@ namespace ImageUtils {
       console.log(err);
     }
   };
+
+  export const compressImage = async (file: File | Blob, limit = 2500) => {
+    if (!ValidationUtils.fileIsImage(file, ["image/jpeg", "image/png"])) return null;
+
+    const toImageElement = async (file: File | Blob) => {
+      return new Promise<HTMLImageElement>((resolve, reject) => {
+        const img = new Image();
+        const url = URL.createObjectURL(file);
+        img.onload = () => {
+          URL.revokeObjectURL(url);
+          resolve(img);
+        };
+        img.onerror = reject;
+        img.src = url;
+      });
+    };
+
+    const imageElement = await toImageElement(file);
+
+    // Set up canvas with original image dimensions
+    const canvas = document.createElement("canvas");
+    canvas.width = imageElement.width;
+    canvas.height = imageElement.height;
+    const ctx = canvas.getContext("2d");
+    ctx?.drawImage(imageElement, 0, 0);
+
+    const canvasToBlob = (canvas: HTMLCanvasElement, quality: number) => {
+      return new Promise<Blob | null>((resolve) => {
+        canvas.toBlob((blob) => resolve(blob), "image/jpeg", quality);
+      });
+    };
+
+    // Start compression loop
+    let quality = 0.95;
+    let blob = await canvasToBlob(canvas, quality);
+
+    while (blob && ValidationUtils.filesizeIsTooBig(blob, limit) && quality > 0.1) {
+      quality -= 0.05;
+      blob = await canvasToBlob(canvas, quality);
+    }
+
+    return blob;
+  };
 }
 
 export default ImageUtils;

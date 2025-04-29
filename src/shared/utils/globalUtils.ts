@@ -135,4 +135,8 @@ export namespace ValidationUtils {
 
     return file.type.startsWith("image/");
   };
+
+  export const filesizeIsTooBig = (file: File | Blob, kilobytes = 2500) => {
+    return file.size > kilobytes * 1024;
+  };
 }
