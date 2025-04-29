@@ -33,18 +33,18 @@ const handlePreviewImage = (fileinput: HTMLInputElement) => {
 
   if (!ValidationUtils.fileIsImage(file)) return;
 
-  ImageUtils.toDataURL(file).then((url) => {
-    if (!url) return;
+  const url = URL.createObjectURL(file);
+  const image = new Image();
+  image.onload = () => URL.revokeObjectURL(url);
+  image.src = url;
 
-    const modal = document.createElement("div");
-    modal.id = "image-preview-modal";
-    modal.innerHTML = `<img src="${url}" />`;
-    document.body.appendChild(modal);
+  const modal = document.createElement("div");
+  modal.id = "image-preview-modal";
+  modal.appendChild(image);
+  document.body.appendChild(modal);
 
-    modal.addEventListener("click", ({ currentTarget }) => {
-      const modal = currentTarget as HTMLDivElement | null;
-      modal?.remove();
-    });
+  modal.addEventListener("click", ({ currentTarget }) => {
+    (currentTarget as HTMLDivElement | null)?.remove();
   });
 };
 
