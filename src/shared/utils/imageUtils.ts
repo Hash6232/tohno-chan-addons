@@ -30,7 +30,7 @@ namespace ImageUtils {
         throw new Error("Wrong MIME type: " + blob.type);
 
       const pathname = new URL(url).pathname;
-      const filename = pathname.split("/").pop() ?? "file";
+      const filename = pathname.split("/").pop() ?? "file.png";
 
       return new File([blob], filename, { type: blob.type });
     } catch (err) {
