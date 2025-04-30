@@ -3,6 +3,7 @@ import { DOMUtils } from "@shared/utils/globalUtils";
 import addRelativeTime from "./features/posts/add-relative-time";
 import clearFormOnCancel from "./features/quick-reply/clear-form-on-cancel";
 import clipboardImagePaste from "./features/quick-reply/clipboard-image-paste";
+import compressLargeImages from "./features/quick-reply/compress-large-images";
 import fileinputToolbar from "./features/quick-reply/fileinput-toolbar";
 import renameableFileinput from "./features/quick-reply/renameable-fileinput";
 import "./styles/global.scss";
@@ -22,6 +23,7 @@ const main = () => {
     clearFormOnCancel();
     clipboardImagePaste();
     fileinputToolbar();
+    compressLargeImages();
   }, SelectorsEnum.QR);
 };
 
