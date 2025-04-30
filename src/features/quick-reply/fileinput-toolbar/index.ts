@@ -1,5 +1,4 @@
 import { SelectorsEnum } from "@shared/enums";
-
 import { FormUtils, ValidationUtils } from "@shared/utils/globalUtils";
 import ImageUtils from "@shared/utils/imageUtils";
 import { createNewButtonTemplate, createNewToggleTemplate } from "@shared/utils/uiUtils";
