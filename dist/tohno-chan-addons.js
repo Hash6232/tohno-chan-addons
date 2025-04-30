@@ -123,10 +123,10 @@
         time.title = DateUtils.toRelative(new Date(time.dateTime));
     };
     const addRelativeTime = (post) => {
-        const time = post.querySelector("time");
-        if (!time)
+        const time = post.querySelectorAll("time");
+        if (time.length < 1)
             return;
-        time.addEventListener("mouseenter", handleCursorHover);
+        time.forEach(el => el.addEventListener("mouseenter", handleCursorHover));
     };
 
     const handleCloseButtonClick = () => {
