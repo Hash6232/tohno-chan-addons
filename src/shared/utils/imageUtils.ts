@@ -38,10 +38,10 @@ namespace ImageUtils {
     }
   };
 
-  export const compressImage = async (file: File | Blob, limit = 2500) => {
+  export const compressImage = async (file: File, limit = 2500) => {
     if (!ValidationUtils.fileIsImage(file, ["image/jpeg", "image/png"])) return null;
 
-    const toImageElement = async (file: File | Blob) => {
+    const toImageElement = async (file: File) => {
       return new Promise<HTMLImageElement>((resolve, reject) => {
         const img = new Image();
         const url = URL.createObjectURL(file);
@@ -78,7 +78,12 @@ namespace ImageUtils {
       blob = await canvasToBlob(canvas, quality);
     }
 
-    return blob;
+    if (!blob) return null;
+
+    const newFilename = file.name.replace(/\.png$/, ".jpeg");
+    const options = { type: blob.type, lastModified: file.lastModified };
+
+    return new File([blob], newFilename, options);
   };
 }
 
