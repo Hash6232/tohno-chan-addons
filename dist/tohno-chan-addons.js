@@ -344,6 +344,23 @@
         removeAttachmentButton.addEventListener("click", () => handleResetFileinput(fileinput));
     };
 
+    const handleKeyPress = (event) => {
+        if (event.key !== "q")
+            return;
+        const active = document.activeElement;
+        if (active) {
+            const isTypingField = active.tagName === 'INPUT' ||
+                active.tagName === 'TEXTAREA' ||
+                active.isContentEditable;
+            if (isTypingField)
+                return;
+        }
+        window.dispatchEvent(new CustomEvent('cite'));
+    };
+    const keyboardShortcut = () => {
+        document.addEventListener("keydown", handleKeyPress);
+    };
+
     var css$1 = "#quick-reply #upload{background-color:#fff;border:1px solid}#quick-reply #upload>td{cursor:text}#quick-reply #upload_file{display:none}#quick-reply #upload_filename{border:none;outline:none;padding-bottom:0}";
     n(css$1,{"singleTag":true});
 
@@ -395,6 +412,7 @@
 
     const main = () => {
         DOMUtils.onElementLoaded(() => {
+            keyboardShortcut();
             const posts = document.querySelectorAll("body > form[name='postcontrols'] .thread .post" + ":not(.hidden)");
             posts.forEach((post) => DOMUtils.onElementVisible(post, () => {
                 addRelativeTime(post);

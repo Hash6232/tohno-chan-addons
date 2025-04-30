@@ -5,11 +5,14 @@ import clearFormOnCancel from "./features/quick-reply/clear-form-on-cancel";
 import clipboardImagePaste from "./features/quick-reply/clipboard-image-paste";
 import compressLargeImages from "./features/quick-reply/compress-large-images";
 import fileinputToolbar from "./features/quick-reply/fileinput-toolbar";
+import keyboardShortcut from "./features/quick-reply/keyboard-shortcut";
 import renameableFileinput from "./features/quick-reply/renameable-fileinput";
 import "./styles/global.scss";
 
 const main = () => {
   DOMUtils.onElementLoaded(() => {
+    keyboardShortcut();
+
     const posts = document.querySelectorAll(SelectorsEnum.POST + ":not(.hidden)");
     posts.forEach((post) =>
       DOMUtils.onElementVisible(post, () => {
