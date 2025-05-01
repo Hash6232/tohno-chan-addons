@@ -1,6 +1,23 @@
 (function () {
     'use strict';
 
+    var Selectors;
+    (function (Selectors) {
+        (function (Form) {
+            Form["POST"] = "form[name='post']";
+            Form["POST_QR"] = "form[name='post']#quick-reply";
+            Form["TEXTAREA"] = "textarea[name='body']";
+            Form["INPUT_FILE"] = "input[name='file']";
+            Form["SPOILER"] = "input[name='spoiler']";
+            Form["CLOSE_QR"] = "a.close-btn";
+        })(Selectors.Form || (Selectors.Form = {}));
+        (function (Index) {
+            Index["INDEX"] = "form[name='postcontrols']";
+            Index["THREAD"] = ".thread";
+            Index["POST"] = ".post";
+        })(Selectors.Index || (Selectors.Index = {}));
+    })(Selectors || (Selectors = {}));
+
     var DateUtils;
     (function (DateUtils) {
         const formatToRelative = (diffInSeconds) => {
@@ -90,15 +107,6 @@
             input.files = dataTransfer.files;
             input.dispatchEvent(new Event("change", { bubbles: true }));
         };
-        FormUtils.updateInputFilename = (input, filename) => {
-            if (!ValidationUtils.inputHasFile(input))
-                return;
-            const file = input.files?.[0];
-            if (!file)
-                return;
-            const options = { type: file.type, lastModified: file.lastModified };
-            FormUtils.setInputFile(input, new File([file], filename || file.name, options));
-        };
     })(FormUtils || (FormUtils = {}));
     var ValidationUtils;
     (function (ValidationUtils) {
@@ -116,44 +124,63 @@
         };
     })(ValidationUtils || (ValidationUtils = {}));
 
-    const handleCursorHover = (e) => {
-        const time = e.currentTarget;
-        if (!time)
+    const handlePasteEvent = ({ clipboardData }, input) => {
+        if (!clipboardData || clipboardData.files.length !== 1)
             return;
-        time.title = DateUtils.toRelative(new Date(time.dateTime));
+        const file = clipboardData.files[0];
+        FormUtils.setInputFile(input, file);
     };
-    const addRelativeTime = (post) => {
-        const time = post.querySelectorAll("time");
-        if (time.length < 1)
+    const filePasteFeature = (form) => {
+        const textarea = form.querySelector(Selectors.Form.TEXTAREA);
+        const fileInput = form.querySelector(Selectors.Form.INPUT_FILE);
+        if (!textarea || !fileInput)
             return;
-        time.forEach(el => el.addEventListener("mouseenter", handleCursorHover));
-    };
-
-    const handleCloseButtonClick = () => {
-        const textarea = document.querySelector("body > form[name='post'] textarea[name='body']");
-        if (!textarea)
-            return;
-        textarea.value = "";
-    };
-    const clearFormOnCancel = () => {
-        const cancelButton = document.querySelector("form#quick-reply a.close-btn");
-        if (!cancelButton)
-            return;
-        cancelButton.addEventListener("click", () => handleCloseButtonClick());
+        textarea.addEventListener("paste", (e) => handlePasteEvent(e, fileInput));
     };
 
-    const clipboardImagePaste = () => {
-        const textarea = document.querySelector("form#quick-reply textarea[name='body']");
-        const fileinput = document.querySelector("form#quick-reply #upload_file");
-        textarea?.addEventListener("paste", (e) => {
-            const clipboard = e.clipboardData;
-            if (!clipboard || clipboard.files.length < 1)
-                return;
-            const file = clipboard.files[0];
-            if (!ValidationUtils.fileIsImage(file) || !fileinput)
-                return;
-            FormUtils.setInputFile(fileinput, file);
-        });
+    var e=[],t=[];function n(n,r){if(n&&"undefined"!=typeof document){var a,s=true===r.prepend?"prepend":"append",d=true===r.singleTag,i="string"==typeof r.container?document.querySelector(r.container):document.getElementsByTagName("head")[0];if(d){var u=e.indexOf(i);-1===u&&(u=e.push(i)-1,t[u]={}),a=t[u]&&t[u][s]?t[u][s]:t[u][s]=c();}else a=c();65279===n.charCodeAt(0)&&(n=n.substring(1)),a.styleSheet?a.styleSheet.cssText+=n:a.appendChild(document.createTextNode(n));}function c(){var e=document.createElement("style");if(e.setAttribute("type","text/css"),r.attributes)for(var t=Object.keys(r.attributes),n=0;n<t.length;n++)e.setAttribute(t[n],r.attributes[t[n]]);var a="prepend"===s?"afterbegin":"beforeend";return i.insertAdjacentElement(a,e),e}}
+
+    var css$2 = "form[name=post] input[name=file]{display:none}form[name=post] .upload-filename{box-sizing:border-box;float:left;margin-right:4px;padding-bottom:0;width:calc(79% - 4px)}form[name=post]#quick-reply .upload-filename{width:99%}";
+    n(css$2,{"singleTag":true});
+
+    const handleFileInputChange = ({ currentTarget }, fileName) => {
+        const fileInput = currentTarget;
+        if (!fileInput)
+            return;
+        const file = fileInput.files?.[0];
+        fileName.value = file ? file.name : "";
+    };
+    const handleFileInputCancel = (fileName) => {
+        fileName.blur();
+    };
+    const handleFileNameClick = (fileInput) => {
+        if (ValidationUtils.inputHasFile(fileInput))
+            return;
+        fileInput.click();
+    };
+    const handleFileNameBlur = ({ currentTarget }, fileInput) => {
+        const fileName = currentTarget;
+        if (!fileName || !ValidationUtils.inputHasFile(fileInput))
+            return;
+        const file = fileInput.files[0];
+        const options = { type: file.type, lastModified: file.lastModified };
+        const updatedFile = new File([file], fileName.value, options);
+        FormUtils.setInputFile(fileInput, updatedFile);
+    };
+    const fileRenameFeature = (form) => {
+        const fileInput = form.querySelector(Selectors.Form.INPUT_FILE);
+        if (!fileInput)
+            return;
+        form.querySelector(".upload-filename")?.remove();
+        const fileName = document.createElement("input");
+        fileName.placeholder = "Click to upload a file..";
+        fileName.className = "upload-filename";
+        fileName.type = "text";
+        fileInput.insertAdjacentElement("afterend", fileName);
+        fileInput.addEventListener("change", (e) => handleFileInputChange(e, fileName));
+        fileInput.addEventListener("cancel", () => handleFileInputCancel(fileName));
+        fileName.addEventListener("click", () => handleFileNameClick(fileInput));
+        fileName.addEventListener("blur", (e) => handleFileNameBlur(e, fileInput));
     };
 
     var ImageUtils;
@@ -227,6 +254,157 @@
     })(ImageUtils || (ImageUtils = {}));
     var ImageUtils$1 = ImageUtils;
 
+    var UIUtils;
+    (function (UIUtils) {
+        (function (Buttons) {
+            const createContainer = (title) => {
+                const container = document.createElement("div");
+                container.className = "btn-container";
+                if (title)
+                    container.title = title;
+                return container;
+            };
+            Buttons.createButton = (template) => {
+                const container = createContainer(template.title);
+                container.classList.add("button");
+                const button = document.createElement("a");
+                button.textContent = template.label;
+                button.href = "javascript:;";
+                if (template.class)
+                    button.className = template.class;
+                if (template.onClick)
+                    button.addEventListener("click", template.onClick);
+                container.appendChild(button);
+                return container;
+            };
+            Buttons.createToggle = (template) => {
+                const container = createContainer(template.title);
+                container.classList.add("toggle");
+                const label = document.createElement("label");
+                label.textContent = template.label;
+                const toggle = document.createElement("input");
+                toggle.type = "checkbox";
+                if (template.class)
+                    toggle.className = template.class;
+                if (template.name)
+                    toggle.name = template.name;
+                if (template.onChange)
+                    toggle.addEventListener("change", template.onChange);
+                label.appendChild(toggle);
+                container.appendChild(label);
+                return container;
+            };
+        })(UIUtils.Buttons || (UIUtils.Buttons = {}));
+    })(UIUtils || (UIUtils = {}));
+    var UIUtils$1 = UIUtils;
+
+    const buttons = {
+        preview: {
+            label: "P",
+            title: "Preview image",
+            class: "preview-image",
+        },
+        spoiler: {
+            label: "S",
+            title: "Spoiler image",
+            class: "spoiler-image",
+            name: "spoiler",
+        },
+        import: {
+            label: "U",
+            title: "Import image from URL",
+            class: "import-image",
+        },
+        clear: {
+            label: "×",
+            title: "Remove file",
+            class: "remove-file",
+        },
+    };
+
+    var css$1 = "form[name=post] td>input[name=spoiler],form[name=post] td>input[name=spoiler]~label{display:none}form[name=post]:not(.has-attachment) .btn-container:has(.remove-file){display:none}form[name=post]:not(.has-image) .btn-container:has(.preview-image),form[name=post]:not(.has-image) .btn-container:has(.spoiler-image){display:none}form[name=post]:not(#quick-reply) .file-toolbar{padding-top:2px}form[name=post] .file-toolbar{align-items:center;display:flex;gap:4px;justify-content:end}form[name=post] .remove-file{padding-bottom:2px}#quick-reply tr td:nth-child(2).spoiler{padding-right:2px}#image-preview-modal{align-items:center;background-color:rgba(0,0,0,.3);display:flex;height:100%;justify-content:center;left:0;position:fixed;top:0;width:100%;z-index:101}#image-preview-modal img{max-height:100%;max-width:100%}";
+    n(css$1,{"singleTag":true});
+
+    const UI = UIUtils$1.Buttons;
+    const handleChangeFileInput = ({ currentTarget }, form) => {
+        const input = currentTarget;
+        if (!input)
+            return;
+        if (!ValidationUtils.inputHasFile(input)) {
+            form.classList.toggle("has-attachment", false);
+            form.classList.toggle("has-image", false);
+            return;
+        }
+        form.classList.toggle("has-attachment", true);
+        const file = input.files[0];
+        if (!ValidationUtils.fileIsImage(file))
+            return;
+        form.classList.toggle("has-image", true);
+    };
+    const handlePreviewImage = (input) => {
+        if (!ValidationUtils.inputHasFile(input))
+            return;
+        const file = input.files[0];
+        if (!ValidationUtils.fileIsImage(file))
+            return;
+        const url = URL.createObjectURL(file);
+        const image = new Image();
+        image.onload = () => URL.revokeObjectURL(url);
+        image.src = url;
+        const modal = document.createElement("div");
+        modal.id = "image-preview-modal";
+        modal.appendChild(image);
+        document.body.appendChild(modal);
+        modal.addEventListener("click", ({ currentTarget }) => {
+            currentTarget?.remove();
+        });
+    };
+    const handleImportImage = (input) => {
+        const url = prompt("Enter a valid image URL:");
+        if (!url)
+            return;
+        ImageUtils$1.fetchImage(url).then((file) => {
+            if (!file)
+                return;
+            FormUtils.setInputFile(input, file);
+        });
+    };
+    const handleResetFileInput = (input) => {
+        input.value = "";
+        input.dispatchEvent(new Event("change", { bubbles: true }));
+    };
+    const fileToolbarFeature = (form) => {
+        form.querySelector(".file-toolbar")?.remove();
+        form.querySelector(`td:has(.${buttons.spoiler.class})`)?.remove();
+        const spoiler = form.querySelector(Selectors.Form.SPOILER);
+        const fileInput = form.querySelector(Selectors.Form.INPUT_FILE);
+        if (!spoiler || !fileInput)
+            return;
+        const container = document.createElement("div");
+        container.className = "file-toolbar";
+        spoiler.parentElement?.appendChild(container);
+        for (const button of [
+            UI.createButton({
+                ...buttons.preview,
+                onClick: () => handlePreviewImage(fileInput),
+            }),
+            UI.createToggle({
+                ...buttons.spoiler,
+            }),
+            UI.createButton({
+                ...buttons.import,
+                onClick: () => handleImportImage(fileInput),
+            }),
+            UI.createButton({
+                ...buttons.clear,
+                onClick: () => handleResetFileInput(fileInput),
+            }),
+        ]) {
+            container.appendChild(button);
+        }
+        fileInput.addEventListener("change", (e) => handleChangeFileInput(e, form));
+    };
+
     const handleInputChange = async ({ target }) => {
         const input = target;
         if (!input || !ValidationUtils.inputHasFile(input))
@@ -244,104 +422,38 @@
         FormUtils.setInputFile(input, compressedImage);
         console.log("Compressed image from", file, "to", compressedImage);
     };
-    const compressLargeImages = () => {
-        const fileinput = document.querySelector("form#quick-reply #upload_file");
-        fileinput?.addEventListener("change", handleInputChange);
+    const imageCompressFeature = (form) => {
+        const fileInput = form.querySelector(Selectors.Form.INPUT_FILE);
+        if (!fileInput)
+            return;
+        fileInput.addEventListener("change", handleInputChange);
     };
 
-    const createNewButtonTemplate = ({ label, title }) => {
-        return `<div title="${title}" class="btn-container btn"><a href="javascript:;">${label}</a></div>`;
+    const handleCursorHover = (e) => {
+        const time = e.currentTarget;
+        if (!time)
+            return;
+        time.title = DateUtils.toRelative(new Date(time.dateTime));
     };
-    const createNewToggleTemplate = ({ label, title, id }) => {
-        return (`<div title="${title}" class="btn-container toggle">` +
-            `<input id="${id}" type="checkbox" />` +
-            `<label for="${id}">${label}</label>` +
-            `</div>`);
+    const relativeTimeFeature = (post) => {
+        const time = post.querySelectorAll("time");
+        if (time.length < 1)
+            return;
+        time.forEach(el => el.addEventListener("mouseenter", handleCursorHover));
     };
 
-    var e=[],t=[];function n(n,r){if(n&&"undefined"!=typeof document){var a,s=true===r.prepend?"prepend":"append",d=true===r.singleTag,i="string"==typeof r.container?document.querySelector(r.container):document.getElementsByTagName("head")[0];if(d){var u=e.indexOf(i);-1===u&&(u=e.push(i)-1,t[u]={}),a=t[u]&&t[u][s]?t[u][s]:t[u][s]=c();}else a=c();65279===n.charCodeAt(0)&&(n=n.substring(1)),a.styleSheet?a.styleSheet.cssText+=n:a.appendChild(document.createTextNode(n));}function c(){var e=document.createElement("style");if(e.setAttribute("type","text/css"),r.attributes)for(var t=Object.keys(r.attributes),n=0;n<t.length;n++)e.setAttribute(t[n],r.attributes[t[n]]);var a="prepend"===s?"afterbegin":"beforeend";return i.insertAdjacentElement(a,e),e}}
-
-    var css$2 = "#quick-reply #upload .spoiler{padding-right:0}#quick-reply #upload .spoiler>input,#quick-reply #upload .spoiler>label{display:none}#quick-reply:has(#upload_file:not(.has-attachment)) .btn-container[data-if=attachment]{display:none}#quick-reply:has(#upload_file:not(.has-image)) .btn-container[data-if=image]{display:none}#quick-reply .q-toolbar-buttons{--btn-size:14px;align-items:center;display:flex;gap:4px;justify-content:end;padding-right:2px}#quick-reply .q-toolbar-buttons .btn-container{align-items:center;border:1px solid;border-radius:2px;box-sizing:border-box;display:inline-flex;font-family:monospace;font-size:var(--btn-size,14px);height:var(--btn-size,14px);justify-content:center;position:relative;width:var(--btn-size,14px)}#quick-reply .q-toolbar-buttons .btn-container>:before{bottom:0;content:\"\";cursor:pointer;left:0;position:absolute;right:0;top:0}#quick-reply .q-toolbar-buttons .btn-container label{font-size:var(--btn-size,14px)}#quick-reply .q-toolbar-buttons .btn-container a{color:inherit;text-decoration:none}#quick-reply .q-toolbar-buttons input[type=checkbox]{margin:0;padding:0}#quick-reply .q-toolbar-buttons input[type=checkbox]:checked+.btn-container,#quick-reply .q-toolbar-buttons input[type=checkbox]:checked+label,#quick-reply .q-toolbar-buttons input[type=checkbox]:not(:checked){display:none}#quick-reply #q-remove-attachment{padding-bottom:2px}#image-preview-modal{align-items:center;background-color:rgba(0,0,0,.3);display:flex;height:100%;justify-content:center;left:0;position:fixed;top:0;width:100%;z-index:101}#image-preview-modal img{max-height:100%;max-width:100%}";
-    n(css$2,{"singleTag":true});
-
-    const handleChangeFileinput = (e) => {
-        const fileinput = e.target;
-        if (!fileinput)
-            return;
-        if (!ValidationUtils.inputHasFile(fileinput)) {
-            fileinput.classList.toggle("has-attachment", false);
-            fileinput.classList.toggle("has-image", false);
-            return;
-        }
-        fileinput.classList.toggle("has-attachment", true);
-        const file = fileinput.files[0];
-        if (!ValidationUtils.fileIsImage(file))
-            return;
-        fileinput.classList.toggle("has-image", true);
+    const handleButtonClick = (textarea) => {
+        textarea.value = "";
     };
-    const handlePreviewImage = (fileinput) => {
-        if (!ValidationUtils.inputHasFile(fileinput))
+    const clearFormOnCloseFeature = (form) => {
+        const cancelButton = form.querySelector(Selectors.Form.CLOSE_QR);
+        const mainPostForm = document.querySelector(Selectors.Form.POST);
+        if (!mainPostForm)
             return;
-        const file = fileinput.files[0];
-        if (!ValidationUtils.fileIsImage(file))
+        const textarea = mainPostForm.querySelector(Selectors.Form.TEXTAREA);
+        if (!cancelButton || !textarea)
             return;
-        const url = URL.createObjectURL(file);
-        const image = new Image();
-        image.onload = () => URL.revokeObjectURL(url);
-        image.src = url;
-        const modal = document.createElement("div");
-        modal.id = "image-preview-modal";
-        modal.appendChild(image);
-        document.body.appendChild(modal);
-        modal.addEventListener("click", ({ currentTarget }) => {
-            currentTarget?.remove();
-        });
-    };
-    const handleImportImage = (fileinput) => {
-        const url = prompt("Enter a valid image URL:");
-        if (!url)
-            return;
-        ImageUtils$1.fetchImage(url).then((file) => {
-            if (!file)
-                return;
-            FormUtils.setInputFile(fileinput, file);
-        });
-    };
-    const handleResetFileinput = (fileinput) => {
-        fileinput.value = "";
-        fileinput.dispatchEvent(new Event("change", { bubbles: true }));
-    };
-    const fileinputToolbar = () => {
-        const fileinput = document.querySelector("form#quick-reply #upload_file");
-        const spoilerCol = document.querySelector("form#quick-reply #upload .spoiler");
-        if (!fileinput || !spoilerCol)
-            return;
-        const btnContainer = document.createElement("div");
-        btnContainer.className = "q-toolbar-buttons";
-        spoilerCol.appendChild(btnContainer);
-        const previewImageButtonTemplate = { label: "P", title: "Preview image" };
-        btnContainer.insertAdjacentHTML("beforeend", createNewButtonTemplate(previewImageButtonTemplate));
-        const previewImageToggle = btnContainer.lastElementChild;
-        previewImageToggle.id = "q-preview-image";
-        previewImageToggle.dataset.if = "image";
-        const spoilerImageToggleTemplate = { label: "S", title: "Spoiler image", id: "q-spoiler-image-custom" };
-        btnContainer.insertAdjacentHTML("beforeend", createNewToggleTemplate(spoilerImageToggleTemplate));
-        const spoilerImageToggle = btnContainer.lastElementChild;
-        spoilerImageToggle.name = "spoiler";
-        spoilerImageToggle.dataset.if = "image";
-        const importImageButtonTemplate = { label: "U", title: "Import image from URL" };
-        btnContainer.insertAdjacentHTML("beforeend", createNewButtonTemplate(importImageButtonTemplate));
-        const importImageButton = btnContainer.lastElementChild;
-        importImageButton.id = "q-import-image";
-        const removeAttachmentButtonTemplate = { label: "×", title: "Remove attachment" };
-        btnContainer.insertAdjacentHTML("beforeend", createNewButtonTemplate(removeAttachmentButtonTemplate));
-        const removeAttachmentButton = btnContainer.lastElementChild;
-        removeAttachmentButton.id = "q-remove-attachment";
-        removeAttachmentButton.dataset.if = "attachment";
-        fileinput.addEventListener("change", handleChangeFileinput);
-        previewImageToggle.addEventListener("click", () => handlePreviewImage(fileinput));
-        importImageButton.addEventListener("click", () => handleImportImage(fileinput));
-        removeAttachmentButton.addEventListener("click", () => handleResetFileinput(fileinput));
+        cancelButton.addEventListener("click", () => handleButtonClick(textarea));
     };
 
     const handleKeyPress = (event) => {
@@ -357,77 +469,49 @@
         }
         window.dispatchEvent(new CustomEvent('cite'));
     };
-    const keyboardShortcut = () => {
+    const keybindToggleFeature = () => {
         document.addEventListener("keydown", handleKeyPress);
     };
 
-    var css$1 = "#quick-reply #upload{background-color:#fff;border:1px solid}#quick-reply #upload>td{cursor:text}#quick-reply #upload_file{display:none}#quick-reply #upload_filename{border:none;outline:none;padding-bottom:0}";
-    n(css$1,{"singleTag":true});
-
-    const handleFilenameClick = (fileinput) => {
-        if (ValidationUtils.inputHasFile(fileinput))
-            return;
-        fileinput.click();
-    };
-    const handleFilenameBlur = (e, fileinput) => {
-        const filename = e.target;
-        if (!filename || !ValidationUtils.inputHasFile(fileinput))
-            return;
-        FormUtils.updateInputFilename(fileinput, filename.value);
-    };
-    const handleFileinputChange = (event, filename) => {
-        const fileinput = event.target;
-        if (!fileinput)
-            return;
-        if (!ValidationUtils.inputHasFile(fileinput)) {
-            filename.value = "";
-            return;
-        }
-        filename.value = fileinput.files[0].name;
-        const length = filename.value.length;
-        filename.setSelectionRange(length, length);
-    };
-    const handleFileinputCancel = (filename) => {
-        filename.blur();
-    };
-    const renameableFileinput = () => {
-        const form = document.querySelector("form#quick-reply");
-        const fileinput = document.querySelector("form#quick-reply #upload_file");
-        const spoilerCol = document.querySelector("form#quick-reply #upload .spoiler");
-        if (!fileinput || !spoilerCol)
-            return;
-        const inputFieldTemplate = `<input id="upload_filename" type="text" placeholder="Click to upload file" />`;
-        fileinput.insertAdjacentHTML("afterend", inputFieldTemplate);
-        const filename = document.getElementById("upload_filename");
-        if (!form || !filename)
-            return;
-        filename.addEventListener("click", () => handleFilenameClick(fileinput));
-        fileinput.addEventListener("change", (e) => handleFileinputChange(e, filename));
-        fileinput.addEventListener("cancel", () => handleFileinputCancel(filename));
-        filename.addEventListener("blur", (e) => handleFilenameBlur(e, fileinput));
-    };
-
-    var css = "#quick-reply tr:last-of-type,#quick-reply>hr{display:none}";
+    var css = ".btn-container{--btn-size:14px;align-items:center;border:1px solid;border-radius:2px;box-sizing:border-box;display:inline-flex;flex-shrink:0;font-family:monospace;font-size:var(--btn-size,14px);height:var(--btn-size,14px);justify-content:center;line-height:var(--btn-size,14px);position:relative;width:var(--btn-size,14px)}.btn-container>:before{bottom:0;content:\"\";cursor:pointer;left:0;position:absolute;right:0;top:0}.btn-container.toggle input[type=checkbox]{margin:0;padding:0}.btn-container.toggle input[type=checkbox]:not(:checked){display:none}.btn-container.toggle:has(input:checked){border:0;font-size:0}.btn-container.toggle:has(input:checked) label{font-size:inherit}.btn-container label{align-items:center;display:flex;font-size:var(--btn-size,14px);justify-content:center}.btn-container a{color:inherit;text-decoration:none}#quick-reply tr:last-of-type,#quick-reply>hr{display:none}";
     n(css,{"singleTag":true});
 
+    const handleThreadFeatures = () => {
+        const form = document.querySelector(Selectors.Index.INDEX);
+        if (!form)
+            return;
+        const posts = form.querySelectorAll(Selectors.Index.POST + ":not(.hidden)");
+        posts.forEach((post) => DOMUtils.onElementVisible(post, () => {
+            relativeTimeFeature(post);
+        }));
+    };
+    const handleMainFormFeatures = () => {
+        const form = document.querySelector(Selectors.Form.POST);
+        if (!form)
+            return;
+        filePasteFeature(form);
+        fileRenameFeature(form);
+        fileToolbarFeature(form);
+        imageCompressFeature(form);
+    };
+    const handleQuickreplyFeatures = () => {
+        const form = document.querySelector(Selectors.Form.POST_QR);
+        if (!form)
+            return;
+        filePasteFeature(form);
+        fileRenameFeature(form);
+        fileToolbarFeature(form);
+        imageCompressFeature(form);
+        clearFormOnCloseFeature(form);
+    };
     const main = () => {
-        DOMUtils.onElementLoaded(() => {
-            keyboardShortcut();
-            const posts = document.querySelectorAll("body > form[name='postcontrols'] .thread .post" + ":not(.hidden)");
-            posts.forEach((post) => DOMUtils.onElementVisible(post, () => {
-                addRelativeTime(post);
-            }));
-        }, "body > form[name='postcontrols'] .thread");
-        DOMUtils.onElementLoaded(() => {
-            renameableFileinput();
-            clearFormOnCancel();
-            clipboardImagePaste();
-            fileinputToolbar();
-            compressLargeImages();
-        }, "form#quick-reply");
+        DOMUtils.onElementLoaded(handleThreadFeatures, Selectors.Index.INDEX, true);
+        DOMUtils.onElementLoaded(handleMainFormFeatures, Selectors.Form.POST, true);
+        keybindToggleFeature();
+        DOMUtils.onElementLoaded(handleQuickreplyFeatures, Selectors.Form.POST_QR);
     };
     try {
-        DOMUtils.onContentLoaded(main, "body > form[name='post']");
+        DOMUtils.onContentLoaded(main, Selectors.Index.INDEX);
     }
     catch (err) {
         console.log("[tohno-chan-addons]", err);

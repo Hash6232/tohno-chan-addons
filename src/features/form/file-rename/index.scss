@@ -1,0 +1,21 @@
+form[name="post"] {
+  /* Hide legacy file input tag */
+  input[name="file"] {
+    display: none;
+  }
+
+  /* Custom input field */
+  .upload-filename {
+    box-sizing: border-box;
+    width: calc(79% - 4px);
+    margin-right: 4px;
+    padding-bottom: 0;
+    float: left;
+  }
+
+  &#quick-reply {
+    .upload-filename {
+      width: 99%;
+    }
+  }
+}

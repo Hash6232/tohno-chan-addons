@@ -15,8 +15,8 @@ const handleKeyPress = (event: KeyboardEvent) => {
   window.dispatchEvent(new CustomEvent('cite'));
 };
 
-const keyboardShortcut = () => {
+const keybindToggleFeature = () => {
   document.addEventListener("keydown", handleKeyPress);
 };
 
-export default keyboardShortcut;
+export default keybindToggleFeature;

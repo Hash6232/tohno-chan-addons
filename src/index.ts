@@ -1,37 +1,64 @@
-import { SelectorsEnum } from "@shared/enums";
+import { Selectors as S } from "@shared/enums";
 import { DOMUtils } from "@shared/utils/globalUtils";
-import addRelativeTime from "./features/posts/add-relative-time";
-import clearFormOnCancel from "./features/quick-reply/clear-form-on-cancel";
-import clipboardImagePaste from "./features/quick-reply/clipboard-image-paste";
-import compressLargeImages from "./features/quick-reply/compress-large-images";
-import fileinputToolbar from "./features/quick-reply/fileinput-toolbar";
-import keyboardShortcut from "./features/quick-reply/keyboard-shortcut";
-import renameableFileinput from "./features/quick-reply/renameable-fileinput";
+import filePasteFeature from "./features/form/file-paste";
+import fileRenameFeature from "./features/form/file-rename";
+import fileToolbarFeature from "./features/form/file-toolbar";
+import imageCompressFeature from "./features/form/image-compress";
+import relativeTimeFeature from "./features/posts/relative-time";
+import clearFormOnCloseFeature from "./features/quick-reply/clear-form-on-close";
+import keybindToggleFeature from "./features/quick-reply/keybind-toggle";
 import "./styles/global.scss";
 
+const handleThreadFeatures = () => {
+  const form = document.querySelector<HTMLFormElement>(S.Index.INDEX);
+
+  if (!form) return;
+
+  const posts = form.querySelectorAll(S.Index.POST + ":not(.hidden)");
+  posts.forEach((post) =>
+    DOMUtils.onElementVisible(post, () => {
+      relativeTimeFeature(post);
+    })
+  );
+};
+
+const handleMainFormFeatures = () => {
+  const form = document.querySelector<HTMLFormElement>(S.Form.POST);
+
+  if (!form) return;
+
+  filePasteFeature(form);
+  fileRenameFeature(form);
+  fileToolbarFeature(form);
+  imageCompressFeature(form);
+};
+
+const handleQuickreplyFeatures = () => {
+  const form = document.querySelector<HTMLFormElement>(S.Form.POST_QR);
+
+  if (!form) return;
+
+  filePasteFeature(form);
+  fileRenameFeature(form);
+  fileToolbarFeature(form);
+  imageCompressFeature(form);
+  clearFormOnCloseFeature(form);
+};
+
 const main = () => {
-  DOMUtils.onElementLoaded(() => {
-    keyboardShortcut();
+  /* Thread */
+  DOMUtils.onElementLoaded(handleThreadFeatures, S.Index.INDEX, true);
 
-    const posts = document.querySelectorAll(SelectorsEnum.POST + ":not(.hidden)");
-    posts.forEach((post) =>
-      DOMUtils.onElementVisible(post, () => {
-        addRelativeTime(post);
-      })
-    );
-  }, SelectorsEnum.THREAD);
+  /* New post form */
+  DOMUtils.onElementLoaded(handleMainFormFeatures, S.Form.POST, true);
 
-  DOMUtils.onElementLoaded(() => {
-    renameableFileinput();
-    clearFormOnCancel();
-    clipboardImagePaste();
-    fileinputToolbar();
-    compressLargeImages();
-  }, SelectorsEnum.QR);
+  /* Quick reply form */
+  keybindToggleFeature();
+  DOMUtils.onElementLoaded(handleQuickreplyFeatures, S.Form.POST_QR);
 };
 
 try {
-  DOMUtils.onContentLoaded(main, SelectorsEnum.FORM);
+  DOMUtils.onContentLoaded(main, S.Index.INDEX);
 } catch (err) {
   console.log("[tohno-chan-addons]", err);
 }

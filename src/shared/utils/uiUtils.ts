@@ -1,16 +1,63 @@
-type NewButtonOptions = { label: string; title: string };
+namespace UIUtils {
+  export namespace Buttons {
+    const createContainer = (title?: string) => {
+      const container = document.createElement("div");
+      container.className = "btn-container";
+      if (title) container.title = title;
 
-export const createNewButtonTemplate = ({ label, title }: NewButtonOptions) => {
-  return `<div title="${title}" class="btn-container btn"><a href="javascript:;">${label}</a></div>`;
-};
+      return container;
+    };
 
-type NewToggleOption = { label: string; title: string; id: string };
+    type ButtonTemplate = {
+      label: string;
+      title?: string;
+      class?: string;
+      onClick?: (e: MouseEvent) => void;
+    };
 
-export const createNewToggleTemplate = ({ label, title, id }: NewToggleOption) => {
-  return (
-    `<div title="${title}" class="btn-container toggle">` +
-    `<input id="${id}" type="checkbox" />` +
-    `<label for="${id}">${label}</label>` +
-    `</div>`
-  );
-};
+    export const createButton = (template: ButtonTemplate) => {
+      const container = createContainer(template.title);
+      container.classList.add("button");
+
+      const button = document.createElement("a");
+      button.textContent = template.label;
+      button.href = "javascript:;";
+
+      if (template.class) button.className = template.class;
+      if (template.onClick) button.addEventListener("click", template.onClick);
+
+      container.appendChild(button);
+
+      return container;
+    };
+
+    type ToggleTemplate = {
+      label: string;
+      title?: string;
+      class?: string;
+      name?: string;
+      onChange?: (e: Event) => void;
+    };
+
+    export const createToggle = (template: ToggleTemplate) => {
+      const container = createContainer(template.title);
+      container.classList.add("toggle");
+
+      const label = document.createElement("label");
+      label.textContent = template.label;
+      const toggle = document.createElement("input");
+      toggle.type = "checkbox";
+
+      if (template.class) toggle.className = template.class;
+      if (template.name) toggle.name = template.name;
+      if (template.onChange) toggle.addEventListener("change", template.onChange);
+
+      label.appendChild(toggle);
+      container.appendChild(label);
+
+      return container;
+    };
+  }
+}
+
+export default UIUtils;

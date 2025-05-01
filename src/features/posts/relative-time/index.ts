@@ -8,7 +8,7 @@ const handleCursorHover = (e: MouseEvent) => {
   time.title = DateUtils.toRelative(new Date(time.dateTime));
 };
 
-const addRelativeTime = (post: Element) => {
+const relativeTimeFeature = (post: Element) => {
   const time = post.querySelectorAll("time") as NodeListOf<HTMLTimeElement>;
 
   if (time.length < 1) return;
@@ -16,4 +16,4 @@ const addRelativeTime = (post: Element) => {
   time.forEach(el => el.addEventListener("mouseenter", handleCursorHover));
 };
 
-export default addRelativeTime;
+export default relativeTimeFeature;

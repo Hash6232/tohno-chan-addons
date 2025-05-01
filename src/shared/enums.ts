@@ -1,23 +1,16 @@
-export const enum SelectorsEnum {
-  CATALOG = "body > div.#Grid",
-  CATALOG_THREAD = SelectorsEnum.CATALOG + " > div.mix",
-  INDEX = "body > form[name='postcontrols']",
-  THREAD = SelectorsEnum.INDEX + " .thread",
-  POST = SelectorsEnum.THREAD + " .post",
+export namespace Selectors {
+  export enum Form {
+    POST = "form[name='post']",
+    POST_QR = Form.POST + "#quick-reply",
+    TEXTAREA = "textarea[name='body']",
+    INPUT_FILE = "input[name='file']",
+    SPOILER = "input[name='spoiler']",
+    CLOSE_QR = "a.close-btn",
+  }
 
-  FORM = "body > form[name='post']",
-  FORM_TEXTAREA = SelectorsEnum.FORM + " textarea[name='body']",
-
-  QR = "form#quick-reply",
-  QR_CLOSE = SelectorsEnum.QR + " a.close-btn",
-  QR_TEXTAREA = SelectorsEnum.QR + " textarea[name='body']",
-  QR_FORMATTING_ROW = SelectorsEnum.QR + " tr:has(input[name='b'])",
-  QR_UPLOAD_ROW = SelectorsEnum.QR + " #upload",
-  QR_FILEINPUT = SelectorsEnum.QR + " #upload_file",
-  QR_SPOILER_COL = SelectorsEnum.QR_UPLOAD_ROW + " .spoiler",
-}
-
-export const enum ErrorsEnum {
-  RES_FAILED = "Request failed with status code: ",
-  WRONG_FILE_TYPE = "Wrong file type: "
+  export enum Index {
+    INDEX = "form[name='postcontrols']",
+    THREAD = ".thread",
+    POST = ".post",
+  }
 }

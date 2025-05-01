@@ -1,4 +1,4 @@
-import { SelectorsEnum } from "@shared/enums";
+import { Selectors as S } from "@shared/enums";
 import { FormUtils, ValidationUtils } from "@shared/utils/globalUtils";
 import ImageUtils from "@shared/utils/imageUtils";
 
@@ -25,10 +25,12 @@ const handleInputChange = async ({ target }: Event) => {
   console.log("Compressed image from", file, "to", compressedImage);
 };
 
-const compressLargeImages = () => {
-  const fileinput = document.querySelector(SelectorsEnum.QR_FILEINPUT) as HTMLInputElement | null;
+const imageCompressFeature = (form: HTMLFormElement) => {
+  const fileInput = form.querySelector<HTMLInputElement>(S.Form.INPUT_FILE);
 
-  fileinput?.addEventListener("change", handleInputChange);
+  if (!fileInput) return;
+
+  fileInput.addEventListener("change", handleInputChange);
 };
 
-export default compressLargeImages;
+export default imageCompressFeature;

@@ -106,19 +106,6 @@ export namespace FormUtils {
 
     input.dispatchEvent(new Event("change", { bubbles: true }));
   };
-
-  export const updateInputFilename = (input: HTMLInputElement, filename: string) => {
-    if (!ValidationUtils.inputHasFile(input)) return;
-
-    const file = input.files?.[0];
-
-    if (!file) return;
-
-    const options = { type: file.type, lastModified: file.lastModified };
-
-    // Update filename but silently fallback to original if it's empty
-    setInputFile(input, new File([file], filename || file.name, options));
-  };
 }
 
 export namespace ValidationUtils {
