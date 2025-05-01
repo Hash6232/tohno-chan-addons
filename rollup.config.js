@@ -5,7 +5,7 @@ import styles from "rollup-plugin-styler";
 export default {
   input: "src/index.ts",
   output: {
-    file: "dist/tohno-chan-addons.js",
+    file: "dist/tohno-chan-tweaks.js",
     format: "iife",
     sourcemap: true,
   },

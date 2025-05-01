@@ -518,4 +518,4 @@
     }
 
 })();
-//# sourceMappingURL=tohno-chan-addons.js.map
+//# sourceMappingURL=tohno-chan-tweaks.js.map
