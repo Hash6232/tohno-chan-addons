@@ -2,6 +2,13 @@
 
 Collection of tweaks for tohno-chan (vichan).
 
+## Form
+
+- Paste files from clipboard into a post
+- Rename files before uploading them
+- File toolbar (preview, upload from URL, remove file)
+- Auto-compression of images exceeding 2500KB in size
+
 ## Posts
 
 - Relative time when hovering on a post timestamp
@@ -11,10 +18,8 @@ Collection of tweaks for tohno-chan (vichan).
 > [!IMPORTANT]
 > Depends on [jquery.min.js](https://github.com/vichan-devel/vichan/blob/master/js/jquery.min.js), [quick-reply.js](https://github.com/vichan-devel/vichan/blob/master/js/quick-reply.js) and [jquery-ui.custom.min.js](https://github.com/vichan-devel/vichan/blob/master/js/jquery-ui.custom.min.js) 
 
-- Renameable file attachments
-- Copy-paste images from clipboard
-- Clear form when pressing the close button
-- Additional toolbar buttons (preview, remove attachment, etc..)
+- Clear all forms when closing the modal
+- Spawn an empty modal by pressing `q`
 
 ## Hot to use
 
