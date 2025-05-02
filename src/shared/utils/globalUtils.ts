@@ -108,6 +108,11 @@ export namespace FormUtils {
   };
 }
 
+export namespace StringUtils {
+  export const templateHandler = (strings: TemplateStringsArray, ...values: (string | number)[]) =>
+    String.raw({ raw: strings }, ...values);
+}
+
 export namespace ValidationUtils {
   export const inputHasFile = (input: HTMLInputElement) => {
     return (input.files?.length ?? 0) > 0;

@@ -1,11 +1,44 @@
 import { Selectors as S } from "@shared/enums";
-import { FormUtils, ValidationUtils } from "@shared/utils/globalUtils";
+import { FormUtils, StringUtils, ValidationUtils } from "@shared/utils/globalUtils";
 import ImageUtils from "@shared/utils/imageUtils";
-import UIUtils from "@shared/utils/uiUtils";
-import buttons from "./buttons";
 import "./index.scss";
 
-const UI = UIUtils.Buttons;
+const toolbar = new (class Toolbar {
+  readonly class = "file-toolbar";
+
+  readonly buttons = {
+    preview: { class: "preview-image", label: "P", title: "Preview image" },
+    spoiler: { class: "spoiler-image", label: "S", title: "Spoiler image", name: "spoiler" },
+    import: { class: "import-image", label: "U", title: "Import image from URL" },
+    remove: { class: "remove-file", label: "×", title: "Remove file" },
+  } as const;
+
+  get html() {
+    return this.template;
+  }
+
+  private get template() {
+    return StringUtils.templateHandler`
+    <div class="${this.class}">
+      <div class="btn-container button" title="${this.buttons.preview.title}">
+        <a href="javascript:;" class="${this.buttons.preview.class}">${this.buttons.preview.label}</a>
+      </div>
+      <div class="btn-container toggle" title="${this.buttons.spoiler.title}">
+        <label>${this.buttons.spoiler.label}<input type="checkbox" 
+          class="${this.buttons.spoiler.class}" 
+          name="${this.buttons.spoiler.name}"
+        /></label>
+      </div>
+      <div class="btn-container button" title="${this.buttons.import.title}">
+        <a href="javascript:;" class="${this.buttons.import.class}">${this.buttons.import.label}</a>
+      </div>
+      <div class="btn-container button" title="${this.buttons.remove.title}">
+        <a href="javascript:;" class="${this.buttons.remove.class}">${this.buttons.remove.label}</a>
+      </div>
+    </div>
+    `;
+  }
+})();
 
 const handleChangeFileInput = ({ currentTarget }: Event, form: HTMLFormElement) => {
   const input = currentTarget as HTMLInputElement | null;
@@ -70,38 +103,25 @@ const handleResetFileInput = (input: HTMLInputElement) => {
 
 const fileToolbarFeature = (form: HTMLFormElement) => {
   // Cleanup
-  form.querySelector<HTMLDivElement>(".file-toolbar")?.remove();
-  form.querySelector<HTMLTableColElement>(`td:has(.${buttons.spoiler.class})`)?.remove();
+  form.querySelector<HTMLDivElement>(`.${toolbar.class}`)?.remove();
+  form.querySelector<HTMLTableColElement>(`td:has(.${toolbar.buttons.spoiler.class})`)?.remove();
 
   const spoiler = form.querySelector<HTMLInputElement>(S.Form.SPOILER);
   const fileInput = form.querySelector<HTMLInputElement>(S.Form.INPUT_FILE);
 
   if (!spoiler || !fileInput) return;
 
-  const container = document.createElement("div");
-  container.className = "file-toolbar";
-  spoiler.parentElement?.appendChild(container);
+  spoiler.parentElement?.insertAdjacentHTML("beforeend", toolbar.html);
 
-  for (const button of [
-    UI.createButton({
-      ...buttons.preview,
-      onClick: () => handlePreviewImage(fileInput),
-    }),
-    UI.createToggle({
-      ...buttons.spoiler,
-    }),
-    UI.createButton({
-      ...buttons.import,
-      onClick: () => handleImportImage(fileInput),
-    }),
-    UI.createButton({
-      ...buttons.clear,
-      onClick: () => handleResetFileInput(fileInput),
-    }),
-  ]) {
-    container.appendChild(button);
-  }
+  /* Toolbar events */
+  const previewBtn = form.querySelector<HTMLAnchorElement>(`.${toolbar.buttons.preview.class}`);
+  previewBtn?.addEventListener("click", () => handlePreviewImage(fileInput));
+  const importURLBtn = form.querySelector<HTMLAnchorElement>(`.${toolbar.buttons.import.class}`);
+  importURLBtn?.addEventListener("click", () => handleImportImage(fileInput));
+  const clearFileBtn = form.querySelector<HTMLAnchorElement>(`.${toolbar.buttons.remove.class}`);
+  clearFileBtn?.addEventListener("click", () => handleResetFileInput(fileInput));
 
+  /* File state watcher */
   fileInput.addEventListener("change", (e) => handleChangeFileInput(e, form));
 };
 
