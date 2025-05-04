@@ -20,6 +20,7 @@ Collection of tweaks for tohno-chan (vichan).
 
 - Clear all forms when closing the modal
 - Spawn an empty modal by pressing `q`
+- Auto-focus textarea when the modal appears
 
 ## Hot to use
 
