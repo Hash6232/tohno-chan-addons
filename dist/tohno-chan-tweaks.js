@@ -411,6 +411,13 @@
         cancelButton.addEventListener("click", () => handleButtonClick(textarea));
     };
 
+    const focusOnLoadFeature = (form) => {
+        const textarea = form.querySelector(Selectors.Form.TEXTAREA);
+        if (!textarea)
+            return;
+        textarea.focus();
+    };
+
     const handleKeyUp = (event) => {
         if (event.key !== "q")
             return;
@@ -441,6 +448,7 @@
         })(Features.Post || (Features.Post = {}));
         (function (QuickReply) {
             QuickReply.clearFormOnClose = clearOnCloseFeature;
+            QuickReply.focusTextareaOnLoad = focusOnLoadFeature;
             QuickReply.showOnShortcutPressed = showonKeyupFeature;
         })(Features.QuickReply || (Features.QuickReply = {}));
     })(Features || (Features = {}));
@@ -474,6 +482,7 @@
         if (!form)
             return;
         Features$1.QuickReply.clearFormOnClose(form);
+        Features$1.QuickReply.focusTextareaOnLoad(form);
         Features$1.Form.pasteFileFromClipboard(form);
         Features$1.Form.allowFileRenaming(form);
         Features$1.Form.addFileToolbar(form);

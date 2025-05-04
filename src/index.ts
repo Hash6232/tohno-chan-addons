@@ -33,6 +33,8 @@ const handleQuickreplyFeatures = () => {
   if (!form) return;
 
   Features.QuickReply.clearFormOnClose(form);
+  Features.QuickReply.focusTextareaOnLoad(form);
+  
   Features.Form.pasteFileFromClipboard(form);
   Features.Form.allowFileRenaming(form);
   Features.Form.addFileToolbar(form);
