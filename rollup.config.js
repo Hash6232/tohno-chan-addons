@@ -1,5 +1,6 @@
 import alias from "@rollup/plugin-alias";
 import typescript from "@rollup/plugin-typescript";
+import path from 'path';
 import styles from "rollup-plugin-styler";
 
 export default {
@@ -11,7 +12,7 @@ export default {
   },
   plugins: [
     alias({
-      entries: [{ find: "@shared", replacement: "src/shared" }],
+      entries: [{ find: "@shared", replacement: path.resolve("src/shared") }],
     }),
     typescript({
       removeComments: true,

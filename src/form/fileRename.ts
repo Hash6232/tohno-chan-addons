@@ -1,6 +1,5 @@
 import { Selectors as S } from "@shared/enums";
 import { FormUtils, ValidationUtils } from "@shared/utils/globalUtils";
-import "./index.scss";
 
 const handleFileInputChange = ({ currentTarget }: Event, fileName: HTMLInputElement) => {
   const fileInput = currentTarget as HTMLInputElement | null;
@@ -28,6 +27,8 @@ const handleFileNameBlur = ({ currentTarget }: Event, fileInput: HTMLInputElemen
   if (!fileName || !ValidationUtils.inputHasFile(fileInput)) return;
 
   const file = fileInput.files![0];
+
+  if (!file) return;
 
   const options = { type: file.type, lastModified: file.lastModified };
   const updatedFile = new File([file], fileName.value, options);

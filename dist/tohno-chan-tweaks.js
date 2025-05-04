@@ -108,10 +108,14 @@
             input.dispatchEvent(new Event("change", { bubbles: true }));
         };
     })(FormUtils || (FormUtils = {}));
+    var StringUtils;
+    (function (StringUtils) {
+        StringUtils.templateHandler = (strings, ...values) => String.raw({ raw: strings }, ...values);
+    })(StringUtils || (StringUtils = {}));
     var ValidationUtils;
     (function (ValidationUtils) {
         ValidationUtils.inputHasFile = (input) => {
-            return (input.files?.length ?? 0) > 0;
+            return input.files && input.files.length > 0;
         };
         ValidationUtils.fileIsImage = (file, mime) => {
             if (mime && mime.length > 0) {
@@ -125,9 +129,11 @@
     })(ValidationUtils || (ValidationUtils = {}));
 
     const handlePasteEvent = ({ clipboardData }, input) => {
-        if (!clipboardData || clipboardData.files.length !== 1)
+        if (!clipboardData || clipboardData.files.length > 1)
             return;
         const file = clipboardData.files[0];
+        if (!file)
+            return;
         FormUtils.setInputFile(input, file);
     };
     const filePasteFeature = (form) => {
@@ -137,11 +143,6 @@
             return;
         textarea.addEventListener("paste", (e) => handlePasteEvent(e, fileInput));
     };
-
-    var e=[],t=[];function n(n,r){if(n&&"undefined"!=typeof document){var a,s=true===r.prepend?"prepend":"append",d=true===r.singleTag,i="string"==typeof r.container?document.querySelector(r.container):document.getElementsByTagName("head")[0];if(d){var u=e.indexOf(i);-1===u&&(u=e.push(i)-1,t[u]={}),a=t[u]&&t[u][s]?t[u][s]:t[u][s]=c();}else a=c();65279===n.charCodeAt(0)&&(n=n.substring(1)),a.styleSheet?a.styleSheet.cssText+=n:a.appendChild(document.createTextNode(n));}function c(){var e=document.createElement("style");if(e.setAttribute("type","text/css"),r.attributes)for(var t=Object.keys(r.attributes),n=0;n<t.length;n++)e.setAttribute(t[n],r.attributes[t[n]]);var a="prepend"===s?"afterbegin":"beforeend";return i.insertAdjacentElement(a,e),e}}
-
-    var css$2 = "form[name=post] input[name=file]{display:none}form[name=post] .upload-filename{box-sizing:border-box;float:left;margin-right:4px;padding-bottom:0;width:calc(79% - 4px)}form[name=post]#quick-reply .upload-filename{width:99%}";
-    n(css$2,{"singleTag":true});
 
     const handleFileInputChange = ({ currentTarget }, fileName) => {
         const fileInput = currentTarget;
@@ -163,6 +164,8 @@
         if (!fileName || !ValidationUtils.inputHasFile(fileInput))
             return;
         const file = fileInput.files[0];
+        if (!file)
+            return;
         const options = { type: file.type, lastModified: file.lastModified };
         const updatedFile = new File([file], fileName.value, options);
         FormUtils.setInputFile(fileInput, updatedFile);
@@ -254,78 +257,41 @@
     })(ImageUtils || (ImageUtils = {}));
     var ImageUtils$1 = ImageUtils;
 
-    var UIUtils;
-    (function (UIUtils) {
-        (function (Buttons) {
-            const createContainer = (title) => {
-                const container = document.createElement("div");
-                container.className = "btn-container";
-                if (title)
-                    container.title = title;
-                return container;
+    const toolbar = new (class Toolbar {
+        constructor() {
+            this.class = "file-toolbar";
+            this.buttons = {
+                preview: { class: "preview-image", label: "P", title: "Preview image" },
+                spoiler: { class: "spoiler-image", label: "S", title: "Spoiler image", name: "spoiler" },
+                import: { class: "import-image", label: "U", title: "Import image from URL" },
+                remove: { class: "remove-file", label: "×", title: "Remove file" },
             };
-            Buttons.createButton = (template) => {
-                const container = createContainer(template.title);
-                container.classList.add("button");
-                const button = document.createElement("a");
-                button.textContent = template.label;
-                button.href = "javascript:;";
-                if (template.class)
-                    button.className = template.class;
-                if (template.onClick)
-                    button.addEventListener("click", template.onClick);
-                container.appendChild(button);
-                return container;
-            };
-            Buttons.createToggle = (template) => {
-                const container = createContainer(template.title);
-                container.classList.add("toggle");
-                const label = document.createElement("label");
-                label.textContent = template.label;
-                const toggle = document.createElement("input");
-                toggle.type = "checkbox";
-                if (template.class)
-                    toggle.className = template.class;
-                if (template.name)
-                    toggle.name = template.name;
-                if (template.onChange)
-                    toggle.addEventListener("change", template.onChange);
-                label.appendChild(toggle);
-                container.appendChild(label);
-                return container;
-            };
-        })(UIUtils.Buttons || (UIUtils.Buttons = {}));
-    })(UIUtils || (UIUtils = {}));
-    var UIUtils$1 = UIUtils;
-
-    const buttons = {
-        preview: {
-            label: "P",
-            title: "Preview image",
-            class: "preview-image",
-        },
-        spoiler: {
-            label: "S",
-            title: "Spoiler image",
-            class: "spoiler-image",
-            name: "spoiler",
-        },
-        import: {
-            label: "U",
-            title: "Import image from URL",
-            class: "import-image",
-        },
-        clear: {
-            label: "×",
-            title: "Remove file",
-            class: "remove-file",
-        },
-    };
-
-    var css$1 = "form[name=post] td>input[name=spoiler],form[name=post] td>input[name=spoiler]~label{display:none}form[name=post]:not(.has-attachment) .btn-container:has(.remove-file){display:none}form[name=post]:not(.has-image) .btn-container:has(.preview-image),form[name=post]:not(.has-image) .btn-container:has(.spoiler-image){display:none}form[name=post]:not(#quick-reply) .file-toolbar{padding-top:2px}form[name=post] .file-toolbar{align-items:center;display:flex;gap:4px;justify-content:end}form[name=post] .remove-file{padding-bottom:2px}#quick-reply tr td:nth-child(2).spoiler{padding-right:2px}#image-preview-modal{align-items:center;background-color:rgba(0,0,0,.3);display:flex;height:100%;justify-content:center;left:0;position:fixed;top:0;width:100%;z-index:101}#image-preview-modal img{max-height:100%;max-width:100%}";
-    n(css$1,{"singleTag":true});
-
-    const UI = UIUtils$1.Buttons;
+        }
+        get html() {
+            return this.template;
+        }
+        get template() {
+            return StringUtils.templateHandler `
+    <div class="${this.class}">
+      <div class="btn-container button" title="${this.buttons.preview.title}">
+        <a href="javascript:;" class="${this.buttons.preview.class}">${this.buttons.preview.label}</a>
+      </div>
+      <div class="btn-container toggle" title="${this.buttons.spoiler.title}">
+        <label>${this.buttons.spoiler.label}<input type="checkbox" 
+          class="${this.buttons.spoiler.class}" 
+          name="${this.buttons.spoiler.name}"
+        /></label>
+      </div>
+      <div class="btn-container button" title="${this.buttons.import.title}">
+        <a href="javascript:;" class="${this.buttons.import.class}">${this.buttons.import.label}</a>
+      </div>
+      <div class="btn-container button" title="${this.buttons.remove.title}">
+        <a href="javascript:;" class="${this.buttons.remove.class}">${this.buttons.remove.label}</a>
+      </div>
+    </div>
+    `;
+        }
+    })();
     const handleChangeFileInput = ({ currentTarget }, form) => {
         const input = currentTarget;
         if (!input)
@@ -337,6 +303,8 @@
         }
         form.classList.toggle("has-attachment", true);
         const file = input.files[0];
+        if (!file)
+            return;
         if (!ValidationUtils.fileIsImage(file))
             return;
         form.classList.toggle("has-image", true);
@@ -345,6 +313,8 @@
         if (!ValidationUtils.inputHasFile(input))
             return;
         const file = input.files[0];
+        if (!file)
+            return;
         if (!ValidationUtils.fileIsImage(file))
             return;
         const url = URL.createObjectURL(file);
@@ -374,34 +344,19 @@
         input.dispatchEvent(new Event("change", { bubbles: true }));
     };
     const fileToolbarFeature = (form) => {
-        form.querySelector(".file-toolbar")?.remove();
-        form.querySelector(`td:has(.${buttons.spoiler.class})`)?.remove();
+        form.querySelector(`.${toolbar.class}`)?.remove();
+        form.querySelector(`td:has(.${toolbar.buttons.spoiler.class})`)?.remove();
         const spoiler = form.querySelector(Selectors.Form.SPOILER);
         const fileInput = form.querySelector(Selectors.Form.INPUT_FILE);
         if (!spoiler || !fileInput)
             return;
-        const container = document.createElement("div");
-        container.className = "file-toolbar";
-        spoiler.parentElement?.appendChild(container);
-        for (const button of [
-            UI.createButton({
-                ...buttons.preview,
-                onClick: () => handlePreviewImage(fileInput),
-            }),
-            UI.createToggle({
-                ...buttons.spoiler,
-            }),
-            UI.createButton({
-                ...buttons.import,
-                onClick: () => handleImportImage(fileInput),
-            }),
-            UI.createButton({
-                ...buttons.clear,
-                onClick: () => handleResetFileInput(fileInput),
-            }),
-        ]) {
-            container.appendChild(button);
-        }
+        spoiler.parentElement?.insertAdjacentHTML("beforeend", toolbar.html);
+        const previewBtn = form.querySelector(`.${toolbar.buttons.preview.class}`);
+        previewBtn?.addEventListener("click", () => handlePreviewImage(fileInput));
+        const importURLBtn = form.querySelector(`.${toolbar.buttons.import.class}`);
+        importURLBtn?.addEventListener("click", () => handleImportImage(fileInput));
+        const clearFileBtn = form.querySelector(`.${toolbar.buttons.remove.class}`);
+        clearFileBtn?.addEventListener("click", () => handleResetFileInput(fileInput));
         fileInput.addEventListener("change", (e) => handleChangeFileInput(e, form));
     };
 
@@ -445,7 +400,7 @@
     const handleButtonClick = (textarea) => {
         textarea.value = "";
     };
-    const clearFormOnCloseFeature = (form) => {
+    const clearOnCloseFeature = (form) => {
         const cancelButton = form.querySelector(Selectors.Form.CLOSE_QR);
         const mainPostForm = document.querySelector(Selectors.Form.POST);
         if (!mainPostForm)
@@ -456,7 +411,7 @@
         cancelButton.addEventListener("click", () => handleButtonClick(textarea));
     };
 
-    const handleKeyPress = (event) => {
+    const handleKeyUp = (event) => {
         if (event.key !== "q")
             return;
         const active = document.activeElement;
@@ -469,11 +424,31 @@
         }
         window.dispatchEvent(new CustomEvent('cite'));
     };
-    const keybindToggleFeature = () => {
-        document.addEventListener("keydown", handleKeyPress);
+    const showonKeyupFeature = () => {
+        document.addEventListener("keyup", handleKeyUp);
     };
 
-    var css = ".btn-container{--btn-size:14px;align-items:center;border:1px solid;border-radius:2px;box-sizing:border-box;display:inline-flex;flex-shrink:0;font-family:monospace;font-size:var(--btn-size,14px);height:var(--btn-size,14px);justify-content:center;line-height:var(--btn-size,14px);position:relative;width:var(--btn-size,14px)}.btn-container>:before{bottom:0;content:\"\";cursor:pointer;left:0;position:absolute;right:0;top:0}.btn-container.toggle input[type=checkbox]{margin:0;padding:0}.btn-container.toggle input[type=checkbox]:not(:checked){display:none}.btn-container.toggle:has(input:checked){border:0;font-size:0}.btn-container.toggle:has(input:checked) label{font-size:inherit}.btn-container label{align-items:center;display:flex;font-size:var(--btn-size,14px);justify-content:center}.btn-container a{color:inherit;text-decoration:none}#quick-reply tr:last-of-type,#quick-reply>hr{display:none}";
+    var Features;
+    (function (Features) {
+        (function (Form) {
+            Form.pasteFileFromClipboard = filePasteFeature;
+            Form.allowFileRenaming = fileRenameFeature;
+            Form.addFileToolbar = fileToolbarFeature;
+            Form.autoCompressBigImages = imageCompressFeature;
+        })(Features.Form || (Features.Form = {}));
+        (function (Post) {
+            Post.relativeTimeOnHover = relativeTimeFeature;
+        })(Features.Post || (Features.Post = {}));
+        (function (QuickReply) {
+            QuickReply.clearFormOnClose = clearOnCloseFeature;
+            QuickReply.showOnShortcutPressed = showonKeyupFeature;
+        })(Features.QuickReply || (Features.QuickReply = {}));
+    })(Features || (Features = {}));
+    var Features$1 = Features;
+
+    var e=[],t=[];function n(n,r){if(n&&"undefined"!=typeof document){var a,s=true===r.prepend?"prepend":"append",d=true===r.singleTag,i="string"==typeof r.container?document.querySelector(r.container):document.getElementsByTagName("head")[0];if(d){var u=e.indexOf(i);-1===u&&(u=e.push(i)-1,t[u]={}),a=t[u]&&t[u][s]?t[u][s]:t[u][s]=c();}else a=c();65279===n.charCodeAt(0)&&(n=n.substring(1)),a.styleSheet?a.styleSheet.cssText+=n:a.appendChild(document.createTextNode(n));}function c(){var e=document.createElement("style");if(e.setAttribute("type","text/css"),r.attributes)for(var t=Object.keys(r.attributes),n=0;n<t.length;n++)e.setAttribute(t[n],r.attributes[t[n]]);var a="prepend"===s?"afterbegin":"beforeend";return i.insertAdjacentElement(a,e),e}}
+
+    var css = ".btn-container{--btn-size:14px;align-items:center;border:1px solid;border-radius:2px;box-sizing:border-box;display:inline-flex;flex-shrink:0;font-family:monospace;font-size:var(--btn-size,14px);height:var(--btn-size,14px);justify-content:center;line-height:var(--btn-size,14px);position:relative;width:var(--btn-size,14px)}.btn-container>:before{bottom:0;content:\"\";cursor:pointer;left:0;position:absolute;right:0;top:0}.btn-container.toggle input[type=checkbox]{margin:0;padding:0}.btn-container.toggle input[type=checkbox]:not(:checked){display:none}.btn-container.toggle:has(input:checked){border:0;font-size:0}.btn-container.toggle:has(input:checked) label{font-size:inherit}.btn-container label{align-items:center;display:flex;font-size:var(--btn-size,14px);justify-content:center}.btn-container a{color:inherit;text-decoration:none}form[name=post] input[name=file]{display:none}form[name=post] .upload-filename{box-sizing:border-box;float:left;margin-right:4px;padding-bottom:0;width:calc(79% - 4px)}form[name=post]#quick-reply .upload-filename{width:99%}form[name=post] td>input[name=spoiler],form[name=post] td>input[name=spoiler]~label{display:none}form[name=post]:not(.has-attachment) .btn-container:has(.remove-file){display:none}form[name=post]:not(.has-image) .btn-container:has(.preview-image),form[name=post]:not(.has-image) .btn-container:has(.spoiler-image){display:none}form[name=post]:not(#quick-reply) .file-toolbar{padding-top:2px}form[name=post] .file-toolbar{align-items:center;display:flex;gap:4px;justify-content:end}form[name=post] .remove-file{padding-bottom:2px}#quick-reply tr td:nth-child(2).spoiler{padding-right:2px}#image-preview-modal{align-items:center;background-color:rgba(0,0,0,.3);display:flex;height:100%;justify-content:center;left:0;position:fixed;top:0;width:100%;z-index:101}#image-preview-modal img{max-height:100%;max-width:100%}#quick-reply tr:last-of-type,#quick-reply>hr{display:none}";
     n(css,{"singleTag":true});
 
     const handleThreadFeatures = () => {
@@ -482,32 +457,32 @@
             return;
         const posts = form.querySelectorAll(Selectors.Index.POST + ":not(.hidden)");
         posts.forEach((post) => DOMUtils.onElementVisible(post, () => {
-            relativeTimeFeature(post);
+            Features$1.Post.relativeTimeOnHover(post);
         }));
     };
     const handleMainFormFeatures = () => {
         const form = document.querySelector(Selectors.Form.POST);
         if (!form)
             return;
-        filePasteFeature(form);
-        fileRenameFeature(form);
-        fileToolbarFeature(form);
-        imageCompressFeature(form);
+        Features$1.Form.pasteFileFromClipboard(form);
+        Features$1.Form.allowFileRenaming(form);
+        Features$1.Form.addFileToolbar(form);
+        Features$1.Form.autoCompressBigImages(form);
     };
     const handleQuickreplyFeatures = () => {
         const form = document.querySelector(Selectors.Form.POST_QR);
         if (!form)
             return;
-        filePasteFeature(form);
-        fileRenameFeature(form);
-        fileToolbarFeature(form);
-        imageCompressFeature(form);
-        clearFormOnCloseFeature(form);
+        Features$1.QuickReply.clearFormOnClose(form);
+        Features$1.Form.pasteFileFromClipboard(form);
+        Features$1.Form.allowFileRenaming(form);
+        Features$1.Form.addFileToolbar(form);
+        Features$1.Form.autoCompressBigImages(form);
     };
     const main = () => {
         DOMUtils.onElementLoaded(handleThreadFeatures, Selectors.Index.INDEX, true);
         DOMUtils.onElementLoaded(handleMainFormFeatures, Selectors.Form.POST, true);
-        keybindToggleFeature();
+        Features$1.QuickReply.showOnShortcutPressed();
         DOMUtils.onElementLoaded(handleQuickreplyFeatures, Selectors.Form.POST_QR);
     };
     try {

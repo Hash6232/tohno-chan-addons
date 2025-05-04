@@ -1,6 +1,9 @@
 @use "variables";
 @use "buttons";
 
+@use "./features/form/fileRename";
+@use "./features/form/fileToolbar";
+
 #quick-reply {
   /* Clean-up */
   & > hr,

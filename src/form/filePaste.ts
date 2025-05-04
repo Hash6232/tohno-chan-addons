@@ -2,9 +2,11 @@ import { Selectors as S } from "@shared/enums";
 import { FormUtils } from "@shared/utils/globalUtils";
 
 const handlePasteEvent = ({ clipboardData }: ClipboardEvent, input: HTMLInputElement) => {
-  if (!clipboardData || clipboardData.files.length !== 1) return;
+  if (!clipboardData || clipboardData.files.length > 1) return;
 
   const file = clipboardData.files[0];
+
+  if (!file) return;
 
   FormUtils.setInputFile(input, file);
 };

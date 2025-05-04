@@ -4,7 +4,7 @@ const handleButtonClick = (textarea: HTMLTextAreaElement) => {
   textarea.value = "";
 };
 
-const clearFormOnCloseFeature = (form: HTMLFormElement) => {
+const clearOnCloseFeature = (form: HTMLFormElement) => {
   const cancelButton = form.querySelector<HTMLAnchorElement>(S.Form.CLOSE_QR);
   const mainPostForm = document.querySelector<HTMLFormElement>(S.Form.POST);
 
@@ -17,4 +17,4 @@ const clearFormOnCloseFeature = (form: HTMLFormElement) => {
   cancelButton.addEventListener("click", () => handleButtonClick(textarea));
 };
 
-export default clearFormOnCloseFeature;
+export default clearOnCloseFeature;

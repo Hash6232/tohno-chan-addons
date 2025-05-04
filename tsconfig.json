@@ -1,15 +1,18 @@
 {
   "compilerOptions": {
     "target": "ES2020",
-    "module": "ES6",
-    "forceConsistentCasingInFileNames": true,
-    "baseUrl": "./",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ES2020",
     "paths": {
-      "@shared/*": ["src/shared/*"]
+      "@shared/*": ["./src/shared/*"]
     },
-    "strict": true,
-    "skipLibCheck": true,
+    "allowJs": true,
     "noEmit": true,
-    "moduleResolution": "bundler"
+    "newLine": "lf",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "skipLibCheck": true
   }
 }

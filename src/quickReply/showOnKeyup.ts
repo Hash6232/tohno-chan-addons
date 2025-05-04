@@ -1,4 +1,4 @@
-const handleKeyPress = (event: KeyboardEvent) => {
+const handleKeyUp = (event: KeyboardEvent) => {
   if (event.key !== "q") return;
 
   const active = document.activeElement as HTMLElement | null;
@@ -15,8 +15,8 @@ const handleKeyPress = (event: KeyboardEvent) => {
   window.dispatchEvent(new CustomEvent('cite'));
 };
 
-const keybindToggleFeature = () => {
-  document.addEventListener("keydown", handleKeyPress);
+const showonKeyupFeature = () => {
+  document.addEventListener("keyup", handleKeyUp);
 };
 
-export default keybindToggleFeature;
+export default showonKeyupFeature;

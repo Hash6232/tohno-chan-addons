@@ -115,7 +115,7 @@ export namespace StringUtils {
 
 export namespace ValidationUtils {
   export const inputHasFile = (input: HTMLInputElement) => {
-    return (input.files?.length ?? 0) > 0;
+    return input.files && input.files.length > 0;
   };
 
   type ImageMime = "image/jpeg" | "image/png" | "image/gif";

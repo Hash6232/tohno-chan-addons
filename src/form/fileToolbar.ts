@@ -1,7 +1,6 @@
 import { Selectors as S } from "@shared/enums";
 import { FormUtils, StringUtils, ValidationUtils } from "@shared/utils/globalUtils";
 import ImageUtils from "@shared/utils/imageUtils";
-import "./index.scss";
 
 const toolbar = new (class Toolbar {
   readonly class = "file-toolbar";
@@ -56,6 +55,8 @@ const handleChangeFileInput = ({ currentTarget }: Event, form: HTMLFormElement) 
 
   const file = input.files![0];
 
+  if (!file) return;
+
   if (!ValidationUtils.fileIsImage(file)) return;
 
   form.classList.toggle("has-image", true);
@@ -65,6 +66,8 @@ const handlePreviewImage = (input: HTMLInputElement) => {
   if (!ValidationUtils.inputHasFile(input)) return;
 
   const file = input.files![0];
+
+  if (!file) return;
 
   if (!ValidationUtils.fileIsImage(file)) return;
 
