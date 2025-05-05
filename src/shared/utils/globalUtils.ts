@@ -1,3 +1,5 @@
+import { AllowedTypes } from "../../config";
+
 export namespace DateUtils {
   const formatToRelative = (diffInSeconds: number) => {
     const rtf = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
@@ -118,9 +120,7 @@ export namespace ValidationUtils {
     return input.files && input.files.length > 0;
   };
 
-  type ImageMime = "image/jpeg" | "image/png" | "image/gif";
-
-  export const fileIsImage = (file: File | Blob, mime?: ImageMime[]) => {
+  export const fileIsImage = (file: File | Blob, mime?: AllowedTypes.ImageMimes[]) => {
     if (mime && mime.length > 0) {
       return mime.some((type) => file.type.startsWith(type));
     }
@@ -128,9 +128,7 @@ export namespace ValidationUtils {
     return file.type.startsWith("image/");
   };
 
-  type VideoMime = "video/mp4" | "video/webm";
-
-  export const fileIsVideo = (file: File | Blob, mime?: VideoMime[]) => {
+  export const fileIsVideo = (file: File | Blob, mime?: AllowedTypes.VideoMimes[]) => {
     if (mime && mime.length > 0) {
       return mime.some((type) => file.type.startsWith(type));
     }
