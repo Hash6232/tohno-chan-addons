@@ -2,7 +2,40 @@ import { ValidationUtils } from "./globalUtils";
 
 type DataURL = string | ArrayBuffer | null;
 
-namespace ImageUtils {
+namespace FileUtils {
+  export const getBlobExtension = (blob: Blob) => {
+    let extension = "";
+
+    switch (blob.type) {
+      case "image/jpeg":
+        extension = ".jpg";
+        break;
+      case "image/png":
+        extension = ".png";
+        break;
+      case "image/gif":
+        extension = ".gif";
+        break;
+      case "video/mp4":
+        extension = ".mp4";
+        break;
+      case "audio/mpeg":
+        extension = ".mp3";
+        break;
+      case "video/webm":
+        extension = ".webm";
+        break;
+      case "application/pdf":
+        extension = ".pdf";
+        break;
+      case "application/x-shockwave-flash":
+        extension = ".swf";
+        break;
+    }
+
+    return extension;
+  };
+
   export const toDataURL = (file: File) => {
     return new Promise<DataURL | undefined>((resolve, reject) => {
       const reader = new FileReader();
@@ -19,18 +52,15 @@ namespace ImageUtils {
     });
   };
 
-  export const fetchImage = async (url: string) => {
+  export const fetchFile = async (url: string) => {
     try {
       const res = await fetch(url);
       if (!res.ok) throw new Error("Error code: " + res.status);
 
       const blob = await res.blob();
 
-      if (!ValidationUtils.fileIsImage(blob))
-        throw new Error("Wrong MIME type: " + blob.type);
-
       const pathname = new URL(url).pathname;
-      const filename = pathname.split("/").pop() ?? "file.png";
+      const filename = pathname.split("/").pop() ?? "file" + getBlobExtension(blob);
 
       return new File([blob], filename, { type: blob.type });
     } catch (err) {
@@ -87,4 +117,4 @@ namespace ImageUtils {
   };
 }
 
-export default ImageUtils;
+export default FileUtils;

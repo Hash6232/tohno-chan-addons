@@ -1,6 +1,6 @@
 import { Selectors as S } from "@shared/enums";
+import FileUtils from "@shared/utils/fileUtils";
 import { FormUtils, StringUtils, ValidationUtils } from "@shared/utils/globalUtils";
-import ImageUtils from "@shared/utils/imageUtils";
 
 const toolbar = new (class Toolbar {
   readonly class = "file-toolbar";
@@ -91,8 +91,10 @@ const handleImportImage = (input: HTMLInputElement) => {
 
   if (!url) return;
 
-  ImageUtils.fetchImage(url).then((file) => {
+  FileUtils.fetchFile(url).then((file) => {
     if (!file) return;
+
+    if (!ValidationUtils.fileIsImage(file)) return;
 
     FormUtils.setInputFile(input, file);
   });
