@@ -128,6 +128,16 @@ export namespace ValidationUtils {
     return file.type.startsWith("image/");
   };
 
+  type VideoMime = "video/mp4" | "video/webm";
+
+  export const fileIsVideo = (file: File | Blob, mime?: VideoMime[]) => {
+    if (mime && mime.length > 0) {
+      return mime.some((type) => file.type.startsWith(type));
+    }
+
+    return file.type.startsWith("video/");
+  };
+
   export const filesizeIsTooBig = (file: File | Blob, kilobytes = 2500) => {
     return file.size > kilobytes * 1024;
   };

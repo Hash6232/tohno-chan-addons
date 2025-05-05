@@ -12,9 +12,15 @@ form[name="post"] {
     }
   }
 
-  /* Hide preview and spoiler buttons when no image is attached */
+  /* Hide preview button when no media is attached */
+  &:not(.has-media) {
+    .btn-container:has(.preview-media) {
+      display: none;
+    }
+  }
+
+  /* Hide spoiler button when no image is attached */
   &:not(.has-image) {
-    .btn-container:has(.preview-image),
     .btn-container:has(.spoiler-image) {
       display: none;
     }
@@ -47,7 +53,7 @@ form[name="post"] {
   }
 }
 
-#image-preview-modal {
+#media-preview-modal {
   position: fixed;
   top: 0;
   left: 0;
@@ -59,7 +65,7 @@ form[name="post"] {
   background-color: rgba(0, 0, 0, 0.3);
   z-index: 101;
 
-  img {
+  img, video {
     max-width: 100%;
     max-height: 100%;
   }

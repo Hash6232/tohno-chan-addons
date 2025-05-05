@@ -123,6 +123,12 @@
             }
             return file.type.startsWith("image/");
         };
+        ValidationUtils.fileIsVideo = (file, mime) => {
+            if (mime && mime.length > 0) {
+                return mime.some((type) => file.type.startsWith(type));
+            }
+            return file.type.startsWith("video/");
+        };
         ValidationUtils.filesizeIsTooBig = (file, kilobytes = 2500) => {
             return file.size > kilobytes * 1024;
         };
@@ -186,9 +192,39 @@
         fileName.addEventListener("blur", (e) => handleFileNameBlur(e, fileInput));
     };
 
-    var ImageUtils;
-    (function (ImageUtils) {
-        ImageUtils.toDataURL = (file) => {
+    var FileUtils;
+    (function (FileUtils) {
+        FileUtils.getBlobExtension = (blob) => {
+            let extension = "";
+            switch (blob.type) {
+                case "image/jpeg":
+                    extension = ".jpg";
+                    break;
+                case "image/png":
+                    extension = ".png";
+                    break;
+                case "image/gif":
+                    extension = ".gif";
+                    break;
+                case "video/mp4":
+                    extension = ".mp4";
+                    break;
+                case "audio/mpeg":
+                    extension = ".mp3";
+                    break;
+                case "video/webm":
+                    extension = ".webm";
+                    break;
+                case "application/pdf":
+                    extension = ".pdf";
+                    break;
+                case "application/x-shockwave-flash":
+                    extension = ".swf";
+                    break;
+            }
+            return extension;
+        };
+        FileUtils.toDataURL = (file) => {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
                 reader.addEventListener("load", ({ target }) => {
@@ -200,23 +236,21 @@
                 reader.readAsDataURL(file);
             });
         };
-        ImageUtils.fetchImage = async (url) => {
+        FileUtils.fetchFile = async (url) => {
             try {
                 const res = await fetch(url);
                 if (!res.ok)
                     throw new Error("Error code: " + res.status);
                 const blob = await res.blob();
-                if (!ValidationUtils.fileIsImage(blob))
-                    throw new Error("Wrong MIME type: " + blob.type);
                 const pathname = new URL(url).pathname;
-                const filename = pathname.split("/").pop() ?? "file.png";
+                const filename = pathname.split("/").pop() ?? "file" + FileUtils.getBlobExtension(blob);
                 return new File([blob], filename, { type: blob.type });
             }
             catch (err) {
                 console.log(err);
             }
         };
-        ImageUtils.compressImage = async (file, limit = 2500) => {
+        FileUtils.compressImage = async (file, limit = 2500) => {
             if (!ValidationUtils.fileIsImage(file, ["image/jpeg", "image/png"]))
                 return null;
             const toImageElement = async (file) => {
@@ -254,16 +288,16 @@
             const options = { type: blob.type, lastModified: file.lastModified };
             return new File([blob], newFilename, options);
         };
-    })(ImageUtils || (ImageUtils = {}));
-    var ImageUtils$1 = ImageUtils;
+    })(FileUtils || (FileUtils = {}));
+    var FileUtils$1 = FileUtils;
 
     const toolbar = new (class Toolbar {
         constructor() {
             this.class = "file-toolbar";
             this.buttons = {
-                preview: { class: "preview-image", label: "P", title: "Preview image" },
+                preview: { class: "preview-media", label: "P", title: "Preview media" },
                 spoiler: { class: "spoiler-image", label: "S", title: "Spoiler image", name: "spoiler" },
-                import: { class: "import-image", label: "U", title: "Import image from URL" },
+                import: { class: "import-media", label: "U", title: "Import media from URL" },
                 remove: { class: "remove-file", label: "×", title: "Remove file" },
             };
         }
@@ -298,6 +332,7 @@
             return;
         if (!ValidationUtils.inputHasFile(input)) {
             form.classList.toggle("has-attachment", false);
+            form.classList.toggle("has-media", false);
             form.classList.toggle("has-image", false);
             return;
         }
@@ -305,36 +340,55 @@
         const file = input.files[0];
         if (!file)
             return;
-        if (!ValidationUtils.fileIsImage(file))
+        if (!ValidationUtils.fileIsImage(file) && !ValidationUtils.fileIsVideo(file))
             return;
-        form.classList.toggle("has-image", true);
+        form.classList.toggle("has-media", true);
+        if (ValidationUtils.fileIsImage(file))
+            form.classList.toggle("has-image", true);
     };
-    const handlePreviewImage = (input) => {
+    const handlePreviewMedia = (input) => {
         if (!ValidationUtils.inputHasFile(input))
             return;
         const file = input.files[0];
         if (!file)
             return;
-        if (!ValidationUtils.fileIsImage(file))
-            return;
+        let media;
         const url = URL.createObjectURL(file);
-        const image = new Image();
-        image.onload = () => URL.revokeObjectURL(url);
-        image.src = url;
+        if (ValidationUtils.fileIsImage(file)) {
+            media = new Image();
+            media.addEventListener("load", () => URL.revokeObjectURL(url));
+        }
+        else if (ValidationUtils.fileIsVideo(file)) {
+            media = document.createElement("video");
+            media.controls = true;
+            media.autoplay = true;
+            media.muted = true;
+            media.loop = true;
+            media.addEventListener("canplay", () => URL.revokeObjectURL(url));
+        }
+        else {
+            console.log("Unsupported MIME type:", file);
+            return;
+        }
+        media.src = url;
         const modal = document.createElement("div");
-        modal.id = "image-preview-modal";
-        modal.appendChild(image);
+        modal.id = "media-preview-modal";
         document.body.appendChild(modal);
-        modal.addEventListener("click", ({ currentTarget }) => {
+        modal.appendChild(media);
+        modal.addEventListener("click", ({ currentTarget, target }) => {
+            if (target instanceof Element && target.closest("video"))
+                return;
             currentTarget?.remove();
         });
     };
-    const handleImportImage = (input) => {
-        const url = prompt("Enter a valid image URL:");
+    const handleImportMedia = (input) => {
+        const url = prompt("Enter a valid media URL:");
         if (!url)
             return;
-        ImageUtils$1.fetchImage(url).then((file) => {
+        FileUtils$1.fetchFile(url).then((file) => {
             if (!file)
+                return;
+            if (!ValidationUtils.fileIsImage(file) && !ValidationUtils.fileIsVideo(file))
                 return;
             FormUtils.setInputFile(input, file);
         });
@@ -352,9 +406,9 @@
             return;
         spoiler.parentElement?.insertAdjacentHTML("beforeend", toolbar.html);
         const previewBtn = form.querySelector(`.${toolbar.buttons.preview.class}`);
-        previewBtn?.addEventListener("click", () => handlePreviewImage(fileInput));
+        previewBtn?.addEventListener("click", () => handlePreviewMedia(fileInput));
         const importURLBtn = form.querySelector(`.${toolbar.buttons.import.class}`);
-        importURLBtn?.addEventListener("click", () => handleImportImage(fileInput));
+        importURLBtn?.addEventListener("click", () => handleImportMedia(fileInput));
         const clearFileBtn = form.querySelector(`.${toolbar.buttons.remove.class}`);
         clearFileBtn?.addEventListener("click", () => handleResetFileInput(fileInput));
         fileInput.addEventListener("change", (e) => handleChangeFileInput(e, form));
@@ -367,7 +421,7 @@
         const file = input.files?.[0];
         if (!file || !ValidationUtils.filesizeIsTooBig(file))
             return;
-        const compressedImage = await ImageUtils$1.compressImage(file);
+        const compressedImage = await FileUtils$1.compressImage(file);
         if (ValidationUtils.fileIsImage(file, ["image/gif"])) {
             console.log("Filesize too big. Consider re-encoding to webm");
             return;
@@ -456,7 +510,7 @@
 
     var e=[],t=[];function n(n,r){if(n&&"undefined"!=typeof document){var a,s=true===r.prepend?"prepend":"append",d=true===r.singleTag,i="string"==typeof r.container?document.querySelector(r.container):document.getElementsByTagName("head")[0];if(d){var u=e.indexOf(i);-1===u&&(u=e.push(i)-1,t[u]={}),a=t[u]&&t[u][s]?t[u][s]:t[u][s]=c();}else a=c();65279===n.charCodeAt(0)&&(n=n.substring(1)),a.styleSheet?a.styleSheet.cssText+=n:a.appendChild(document.createTextNode(n));}function c(){var e=document.createElement("style");if(e.setAttribute("type","text/css"),r.attributes)for(var t=Object.keys(r.attributes),n=0;n<t.length;n++)e.setAttribute(t[n],r.attributes[t[n]]);var a="prepend"===s?"afterbegin":"beforeend";return i.insertAdjacentElement(a,e),e}}
 
-    var css = ".btn-container{--btn-size:14px;align-items:center;border:1px solid;border-radius:2px;box-sizing:border-box;display:inline-flex;flex-shrink:0;font-family:monospace;font-size:var(--btn-size,14px);height:var(--btn-size,14px);justify-content:center;line-height:var(--btn-size,14px);position:relative;width:var(--btn-size,14px)}.btn-container>:before{bottom:0;content:\"\";cursor:pointer;left:0;position:absolute;right:0;top:0}.btn-container.toggle input[type=checkbox]{margin:0;padding:0}.btn-container.toggle input[type=checkbox]:not(:checked){display:none}.btn-container.toggle:has(input:checked){border:0;font-size:0}.btn-container.toggle:has(input:checked) label{font-size:inherit}.btn-container label{align-items:center;display:flex;font-size:var(--btn-size,14px);justify-content:center}.btn-container a{color:inherit;text-decoration:none}form[name=post] input[name=file]{display:none}form[name=post] .upload-filename{box-sizing:border-box;float:left;margin-right:4px;padding-bottom:0;width:calc(79% - 4px)}form[name=post]#quick-reply .upload-filename{width:99%}form[name=post] td>input[name=spoiler],form[name=post] td>input[name=spoiler]~label{display:none}form[name=post]:not(.has-attachment) .btn-container:has(.remove-file){display:none}form[name=post]:not(.has-image) .btn-container:has(.preview-image),form[name=post]:not(.has-image) .btn-container:has(.spoiler-image){display:none}form[name=post]:not(#quick-reply) .file-toolbar{padding-top:2px}form[name=post] .file-toolbar{align-items:center;display:flex;gap:4px;justify-content:end}form[name=post] .remove-file{padding-bottom:2px}#quick-reply tr td:nth-child(2).spoiler{padding-right:2px}#image-preview-modal{align-items:center;background-color:rgba(0,0,0,.3);display:flex;height:100%;justify-content:center;left:0;position:fixed;top:0;width:100%;z-index:101}#image-preview-modal img{max-height:100%;max-width:100%}#quick-reply tr:last-of-type,#quick-reply>hr{display:none}";
+    var css = ".btn-container{--btn-size:14px;align-items:center;border:1px solid;border-radius:2px;box-sizing:border-box;display:inline-flex;flex-shrink:0;font-family:monospace;font-size:var(--btn-size,14px);height:var(--btn-size,14px);justify-content:center;line-height:var(--btn-size,14px);position:relative;width:var(--btn-size,14px)}.btn-container>:before{bottom:0;content:\"\";cursor:pointer;left:0;position:absolute;right:0;top:0}.btn-container.toggle input[type=checkbox]{margin:0;padding:0}.btn-container.toggle input[type=checkbox]:not(:checked){display:none}.btn-container.toggle:has(input:checked){border:0;font-size:0}.btn-container.toggle:has(input:checked) label{font-size:inherit}.btn-container label{align-items:center;display:flex;font-size:var(--btn-size,14px);justify-content:center}.btn-container a{color:inherit;text-decoration:none}form[name=post] input[name=file]{display:none}form[name=post] .upload-filename{box-sizing:border-box;float:left;margin-right:4px;padding-bottom:0;width:calc(79% - 4px)}form[name=post]#quick-reply .upload-filename{width:99%}form[name=post] td>input[name=spoiler],form[name=post] td>input[name=spoiler]~label{display:none}form[name=post]:not(.has-attachment) .btn-container:has(.remove-file){display:none}form[name=post]:not(.has-media) .btn-container:has(.preview-media){display:none}form[name=post]:not(.has-image) .btn-container:has(.spoiler-image){display:none}form[name=post]:not(#quick-reply) .file-toolbar{padding-top:2px}form[name=post] .file-toolbar{align-items:center;display:flex;gap:4px;justify-content:end}form[name=post] .remove-file{padding-bottom:2px}#quick-reply tr td:nth-child(2).spoiler{padding-right:2px}#media-preview-modal{align-items:center;background-color:rgba(0,0,0,.3);display:flex;height:100%;justify-content:center;left:0;position:fixed;top:0;width:100%;z-index:101}#media-preview-modal img,#media-preview-modal video{max-height:100%;max-width:100%}#quick-reply tr:last-of-type,#quick-reply>hr{display:none}";
     n(css,{"singleTag":true});
 
     const handleThreadFeatures = () => {

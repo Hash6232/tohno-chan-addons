@@ -6,9 +6,9 @@ const toolbar = new (class Toolbar {
   readonly class = "file-toolbar";
 
   readonly buttons = {
-    preview: { class: "preview-image", label: "P", title: "Preview image" },
+    preview: { class: "preview-media", label: "P", title: "Preview media" },
     spoiler: { class: "spoiler-image", label: "S", title: "Spoiler image", name: "spoiler" },
-    import: { class: "import-image", label: "U", title: "Import image from URL" },
+    import: { class: "import-media", label: "U", title: "Import media from URL" },
     remove: { class: "remove-file", label: "×", title: "Remove file" },
   } as const;
 
@@ -47,6 +47,7 @@ const handleChangeFileInput = ({ currentTarget }: Event, form: HTMLFormElement) 
   // Reset toolbar display when no file is attached
   if (!ValidationUtils.inputHasFile(input)) {
     form.classList.toggle("has-attachment", false);
+    form.classList.toggle("has-media", false);
     form.classList.toggle("has-image", false);
     return;
   }
@@ -57,44 +58,60 @@ const handleChangeFileInput = ({ currentTarget }: Event, form: HTMLFormElement) 
 
   if (!file) return;
 
-  if (!ValidationUtils.fileIsImage(file)) return;
+  if (!ValidationUtils.fileIsImage(file) && !ValidationUtils.fileIsVideo(file)) return;
 
-  form.classList.toggle("has-image", true);
+  form.classList.toggle("has-media", true);
+
+  if (ValidationUtils.fileIsImage(file)) form.classList.toggle("has-image", true);
 };
 
-const handlePreviewImage = (input: HTMLInputElement) => {
+const handlePreviewMedia = (input: HTMLInputElement) => {
   if (!ValidationUtils.inputHasFile(input)) return;
 
   const file = input.files![0];
 
   if (!file) return;
 
-  if (!ValidationUtils.fileIsImage(file)) return;
-
+  let media: HTMLImageElement | HTMLVideoElement | undefined;
   const url = URL.createObjectURL(file);
-  const image = new Image();
-  image.onload = () => URL.revokeObjectURL(url);
-  image.src = url;
+
+  if (ValidationUtils.fileIsImage(file)) {
+    media = new Image();
+    media.addEventListener("load", () => URL.revokeObjectURL(url));
+  } else if (ValidationUtils.fileIsVideo(file)) {
+    media = document.createElement("video");
+    media.controls = true;
+    media.autoplay = true;
+    media.muted = true;
+    media.loop = true;
+    media.addEventListener("canplay", () => URL.revokeObjectURL(url));
+  } else {
+    console.log("Unsupported MIME type:", file);
+    return;
+  }
+
+  media.src = url;
 
   const modal = document.createElement("div");
-  modal.id = "image-preview-modal";
-  modal.appendChild(image);
+  modal.id = "media-preview-modal";
   document.body.appendChild(modal);
+  modal.appendChild(media);
 
-  modal.addEventListener("click", ({ currentTarget }) => {
+  modal.addEventListener("click", ({ currentTarget, target }) => {
+    if (target instanceof Element && target.closest("video")) return;
     (currentTarget as HTMLDivElement | null)?.remove();
   });
 };
 
-const handleImportImage = (input: HTMLInputElement) => {
-  const url = prompt("Enter a valid image URL:");
+const handleImportMedia = (input: HTMLInputElement) => {
+  const url = prompt("Enter a valid media URL:");
 
   if (!url) return;
 
   FileUtils.fetchFile(url).then((file) => {
     if (!file) return;
 
-    if (!ValidationUtils.fileIsImage(file)) return;
+    if (!ValidationUtils.fileIsImage(file) && !ValidationUtils.fileIsVideo(file)) return;
 
     FormUtils.setInputFile(input, file);
   });
@@ -120,9 +137,9 @@ const fileToolbarFeature = (form: HTMLFormElement) => {
 
   /* Toolbar events */
   const previewBtn = form.querySelector<HTMLAnchorElement>(`.${toolbar.buttons.preview.class}`);
-  previewBtn?.addEventListener("click", () => handlePreviewImage(fileInput));
+  previewBtn?.addEventListener("click", () => handlePreviewMedia(fileInput));
   const importURLBtn = form.querySelector<HTMLAnchorElement>(`.${toolbar.buttons.import.class}`);
-  importURLBtn?.addEventListener("click", () => handleImportImage(fileInput));
+  importURLBtn?.addEventListener("click", () => handleImportMedia(fileInput));
   const clearFileBtn = form.querySelector<HTMLAnchorElement>(`.${toolbar.buttons.remove.class}`);
   clearFileBtn?.addEventListener("click", () => handleResetFileInput(fileInput));
 
