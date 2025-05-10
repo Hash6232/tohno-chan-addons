@@ -58,11 +58,11 @@ const handleChangeFileInput = ({ currentTarget }: Event, form: HTMLFormElement) 
 
   if (!file) return;
 
-  if (!ValidationUtils.fileIsImage(file) && !ValidationUtils.fileIsVideo(file)) return;
+  if (!ValidationUtils.fileIsValidImage(file) && !ValidationUtils.fileIsValidVideo(file)) return;
 
   form.classList.toggle("has-media", true);
 
-  if (ValidationUtils.fileIsImage(file)) form.classList.toggle("has-image", true);
+  if (ValidationUtils.fileIsValidImage(file)) form.classList.toggle("has-image", true);
 };
 
 const handlePreviewMedia = (input: HTMLInputElement) => {
@@ -75,10 +75,10 @@ const handlePreviewMedia = (input: HTMLInputElement) => {
   let media: HTMLImageElement | HTMLVideoElement | undefined;
   const url = URL.createObjectURL(file);
 
-  if (ValidationUtils.fileIsImage(file)) {
+  if (ValidationUtils.fileIsValidImage(file)) {
     media = new Image();
     media.addEventListener("load", () => URL.revokeObjectURL(url));
-  } else if (ValidationUtils.fileIsVideo(file)) {
+  } else if (ValidationUtils.fileIsValidVideo(file)) {
     media = document.createElement("video");
     media.controls = true;
     media.autoplay = true;
@@ -111,7 +111,7 @@ const handleImportMedia = (input: HTMLInputElement) => {
   FileUtils.fetchFile(url).then((file) => {
     if (!file) return;
 
-    if (!ValidationUtils.fileIsImage(file) && !ValidationUtils.fileIsVideo(file)) return;
+    if (!ValidationUtils.fileIsValidImage(file) && !ValidationUtils.fileIsValidVideo(file)) return;
 
     FormUtils.setInputFile(input, file);
   });

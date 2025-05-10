@@ -1,4 +1,4 @@
-import { Selectors as S } from "@shared/enums";
+import { FileFormats, Selectors as S } from "@shared/enums";
 import FileUtils from "@shared/utils/fileUtils";
 import { FormUtils, ValidationUtils } from "@shared/utils/globalUtils";
 
@@ -13,7 +13,7 @@ const handleInputChange = async ({ target }: Event) => {
 
   const compressedImage = await FileUtils.compressImage(file);
 
-  if (ValidationUtils.fileIsImage(file, ["image/gif"])) {
+  if (ValidationUtils.fileIsValidImage(file, [FileFormats.Image.GIF])) {
     console.log("Filesize too big. Consider re-encoding to webm");
     return;
   }
