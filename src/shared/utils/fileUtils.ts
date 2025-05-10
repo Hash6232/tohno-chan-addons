@@ -2,8 +2,6 @@ import { FileFormats } from "@shared/enums";
 import { default as C } from "../../config";
 import { ValidationUtils } from "./globalUtils";
 
-type DataURL = string | ArrayBuffer | null;
-
 namespace FileUtils {
   export const mimeToExt = (mimeInput: string) => {
     for (const type of Object.values(FileFormats))
@@ -14,6 +12,8 @@ namespace FileUtils {
     for (const type of Object.values(FileFormats))
       if (ext in type) return type[ext as keyof typeof type]
   };
+
+  type DataURL = string | ArrayBuffer | null;
 
   export const toDataURL = (file: File) => {
     return new Promise<DataURL | undefined>((resolve, reject) => {
