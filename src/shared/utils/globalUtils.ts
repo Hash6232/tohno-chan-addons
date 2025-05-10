@@ -136,7 +136,7 @@ export namespace ValidationUtils {
     return mimes.some((mime) => mime === file.type);
   };
 
-  export const filesizeIsTooBig = (file: File | Blob, kilobytes = 2500) => {
-    return file.size > kilobytes * 1024;
+  export const filesizeIsTooBig = (file: File | Blob, kilobytes?: number) => {
+    return file.size > (kilobytes ?? C.max_filesize) * 1024;
   };
 }
