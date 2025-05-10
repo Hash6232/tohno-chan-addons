@@ -38,6 +38,8 @@ namespace FileUtils {
 
       const blob = await res.blob();
 
+      if (!ValidationUtils.fileIsAllowed(blob)) throw new Error("File type not allowd: " + blob);
+
       const pathname = new URL(url).pathname;
       const extension = mimeToExt(blob.type);
       const fallback = "file" + (extension ? "." + extension : "");
