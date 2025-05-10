@@ -1,6 +1,26 @@
 (function () {
     'use strict';
 
+    var FileFormats;
+    (function (FileFormats) {
+        (function (Image) {
+            Image["BMP"] = "image/bmp";
+            Image["GIF"] = "image/gif";
+            Image["JPG"] = "image/jpeg";
+            Image["JPEG"] = "image/jpeg";
+            Image["PNG"] = "image/png";
+            Image["WEBP"] = "image/webp";
+        })(FileFormats.Image || (FileFormats.Image = {}));
+        (function (Video) {
+            Video["FLV"] = "video/x-flv";
+            Video["MP4"] = "video/mp4";
+            Video["WEBM"] = "video/webm";
+        })(FileFormats.Video || (FileFormats.Video = {}));
+        (function (Audio) {
+            Audio["FLAC"] = "audio/flac";
+            Audio["MP3"] = "audio/mpeg";
+        })(FileFormats.Audio || (FileFormats.Audio = {}));
+    })(FileFormats || (FileFormats = {}));
     var Selectors;
     (function (Selectors) {
         (function (Form) {
@@ -17,6 +37,20 @@
             Index["POST"] = ".post";
         })(Selectors.Index || (Selectors.Index = {}));
     })(Selectors || (Selectors = {}));
+
+    const Config = {
+        allowed_ext: {
+            image: [
+                FileFormats.Image.BMP,
+                FileFormats.Image.GIF,
+                FileFormats.Image.JPG,
+                FileFormats.Image.JPEG,
+                FileFormats.Image.PNG,
+            ],
+            video: [FileFormats.Video.MP4, FileFormats.Video.WEBM],
+            audio: [FileFormats.Audio.FLAC, FileFormats.Audio.MP3],
+        },
+        max_filesize: 10000};
 
     var DateUtils;
     (function (DateUtils) {
@@ -117,20 +151,20 @@
         ValidationUtils.inputHasFile = (input) => {
             return input.files && input.files.length > 0;
         };
-        ValidationUtils.fileIsImage = (file, mime) => {
-            if (mime && mime.length > 0) {
-                return mime.some((type) => file.type.startsWith(type));
-            }
-            return file.type.startsWith("image/");
+        ValidationUtils.fileIsAllowed = (file) => {
+            return Object.values(Config.allowed_ext).some((type) => type.some((mime) => mime === file.type));
         };
-        ValidationUtils.fileIsVideo = (file, mime) => {
-            if (mime && mime.length > 0) {
-                return mime.some((type) => file.type.startsWith(type));
-            }
-            return file.type.startsWith("video/");
+        ValidationUtils.fileIsValidImage = (file, mimes = Config.allowed_ext.image) => {
+            return mimes.some((mime) => mime === file.type);
         };
-        ValidationUtils.filesizeIsTooBig = (file, kilobytes = 2500) => {
-            return file.size > kilobytes * 1024;
+        ValidationUtils.fileIsValidVideo = (file, mimes = Config.allowed_ext.video) => {
+            return mimes.some((mime) => mime === file.type);
+        };
+        ValidationUtils.fileIsValidAudio = (file, mimes = Config.allowed_ext.audio) => {
+            return mimes.some((mime) => mime === file.type);
+        };
+        ValidationUtils.filesizeIsTooBig = (file, kilobytes) => {
+            return file.size > (kilobytes ?? Config.max_filesize) * 1024;
         };
     })(ValidationUtils || (ValidationUtils = {}));
 
@@ -194,35 +228,16 @@
 
     var FileUtils;
     (function (FileUtils) {
-        FileUtils.getBlobExtension = (blob) => {
-            let extension = "";
-            switch (blob.type) {
-                case "image/jpeg":
-                    extension = ".jpg";
-                    break;
-                case "image/png":
-                    extension = ".png";
-                    break;
-                case "image/gif":
-                    extension = ".gif";
-                    break;
-                case "video/mp4":
-                    extension = ".mp4";
-                    break;
-                case "audio/mpeg":
-                    extension = ".mp3";
-                    break;
-                case "video/webm":
-                    extension = ".webm";
-                    break;
-                case "application/pdf":
-                    extension = ".pdf";
-                    break;
-                case "application/x-shockwave-flash":
-                    extension = ".swf";
-                    break;
-            }
-            return extension;
+        FileUtils.mimeToExt = (mimeInput) => {
+            for (const type of Object.values(FileFormats))
+                for (const [ext, mime] of Object.entries(type))
+                    if (mime === mimeInput)
+                        return ext;
+        };
+        FileUtils.extToMime = (ext) => {
+            for (const type of Object.values(FileFormats))
+                if (ext in type)
+                    return type[ext];
         };
         FileUtils.toDataURL = (file) => {
             return new Promise((resolve, reject) => {
@@ -242,8 +257,12 @@
                 if (!res.ok)
                     throw new Error("Error code: " + res.status);
                 const blob = await res.blob();
+                if (!ValidationUtils.fileIsAllowed(blob))
+                    throw new Error("File type not allowd: " + blob);
                 const pathname = new URL(url).pathname;
-                const filename = pathname.split("/").pop() ?? "file" + FileUtils.getBlobExtension(blob);
+                const extension = FileUtils.mimeToExt(blob.type);
+                const fallback = "file" + (extension ? "." + extension : "");
+                const filename = pathname.split("/").pop() ?? fallback;
                 return new File([blob], filename, { type: blob.type });
             }
             catch (err) {
@@ -251,7 +270,13 @@
             }
         };
         FileUtils.compressImage = async (file, limit = 2500) => {
-            if (!ValidationUtils.fileIsImage(file, ["image/jpeg", "image/png"]))
+            const validFormats = [
+                FileFormats.Image.BMP,
+                FileFormats.Image.JPG,
+                FileFormats.Image.JPEG,
+                FileFormats.Image.PNG,
+            ];
+            if (!ValidationUtils.fileIsValidImage(file, validFormats))
                 return null;
             const toImageElement = async (file) => {
                 return new Promise((resolve, reject) => {
@@ -273,7 +298,7 @@
             ctx?.drawImage(imageElement, 0, 0);
             const canvasToBlob = (canvas, quality) => {
                 return new Promise((resolve) => {
-                    canvas.toBlob((blob) => resolve(blob), "image/jpeg", quality);
+                    canvas.toBlob((blob) => resolve(blob), FileFormats.Image.JPEG, quality);
                 });
             };
             let quality = 0.95;
@@ -284,7 +309,7 @@
             }
             if (!blob)
                 return null;
-            const newFilename = file.name.replace(/\.png$/, ".jpeg");
+            const newFilename = file.name.replace(/\.[^/.]+$/, ".jpeg");
             const options = { type: blob.type, lastModified: file.lastModified };
             return new File([blob], newFilename, options);
         };
@@ -340,10 +365,10 @@
         const file = input.files[0];
         if (!file)
             return;
-        if (!ValidationUtils.fileIsImage(file) && !ValidationUtils.fileIsVideo(file))
+        if (!ValidationUtils.fileIsValidImage(file) && !ValidationUtils.fileIsValidVideo(file))
             return;
         form.classList.toggle("has-media", true);
-        if (ValidationUtils.fileIsImage(file))
+        if (ValidationUtils.fileIsValidImage(file))
             form.classList.toggle("has-image", true);
     };
     const handlePreviewMedia = (input) => {
@@ -354,11 +379,11 @@
             return;
         let media;
         const url = URL.createObjectURL(file);
-        if (ValidationUtils.fileIsImage(file)) {
+        if (ValidationUtils.fileIsValidImage(file)) {
             media = new Image();
             media.addEventListener("load", () => URL.revokeObjectURL(url));
         }
-        else if (ValidationUtils.fileIsVideo(file)) {
+        else if (ValidationUtils.fileIsValidVideo(file)) {
             media = document.createElement("video");
             media.controls = true;
             media.autoplay = true;
@@ -388,7 +413,7 @@
         FileUtils$1.fetchFile(url).then((file) => {
             if (!file)
                 return;
-            if (!ValidationUtils.fileIsImage(file) && !ValidationUtils.fileIsVideo(file))
+            if (!ValidationUtils.fileIsValidImage(file) && !ValidationUtils.fileIsValidVideo(file))
                 return;
             FormUtils.setInputFile(input, file);
         });
@@ -422,7 +447,7 @@
         if (!file || !ValidationUtils.filesizeIsTooBig(file))
             return;
         const compressedImage = await FileUtils$1.compressImage(file);
-        if (ValidationUtils.fileIsImage(file, ["image/gif"])) {
+        if (ValidationUtils.fileIsValidImage(file, [FileFormats.Image.GIF])) {
             console.log("Filesize too big. Consider re-encoding to webm");
             return;
         }
