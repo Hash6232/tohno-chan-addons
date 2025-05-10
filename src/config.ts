@@ -25,7 +25,7 @@ const Config = {
       // zip: "application/zip",
     },
   },
-  max_filesize: 2500,
+  max_filesize: 10000,
   max_image: 1,
 } as const;
 
