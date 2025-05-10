@@ -100,7 +100,7 @@ namespace FileUtils {
 
     if (!blob) return null;
 
-    const newFilename = file.name.replace(/\.png$/, ".jpeg");
+    const newFilename = file.name.replace(/\.[^/.]+$/, ".jpeg");
     const options = { type: blob.type, lastModified: file.lastModified };
 
     return new File([blob], newFilename, options);
