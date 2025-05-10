@@ -1,39 +1,18 @@
+import { FileFormats } from "@shared/enums";
+import { default as C } from "../../config";
 import { ValidationUtils } from "./globalUtils";
 
 type DataURL = string | ArrayBuffer | null;
 
 namespace FileUtils {
-  export const getBlobExtension = (blob: Blob) => {
-    let extension = "";
+  export const mimeToExt = (mimeInput: string) => {
+    for (const type of Object.values(FileFormats))
+      for (const [ext, mime] of Object.entries(type)) if (mime === mimeInput) return ext;
+  };
 
-    switch (blob.type) {
-      case "image/jpeg":
-        extension = ".jpg";
-        break;
-      case "image/png":
-        extension = ".png";
-        break;
-      case "image/gif":
-        extension = ".gif";
-        break;
-      case "video/mp4":
-        extension = ".mp4";
-        break;
-      case "audio/mpeg":
-        extension = ".mp3";
-        break;
-      case "video/webm":
-        extension = ".webm";
-        break;
-      case "application/pdf":
-        extension = ".pdf";
-        break;
-      case "application/x-shockwave-flash":
-        extension = ".swf";
-        break;
-    }
-
-    return extension;
+  export const extToMime = (ext: string) => {
+    for (const type of Object.values(FileFormats))
+      if (ext in type) return type[ext as keyof typeof type]
   };
 
   export const toDataURL = (file: File) => {
@@ -60,7 +39,9 @@ namespace FileUtils {
       const blob = await res.blob();
 
       const pathname = new URL(url).pathname;
-      const filename = pathname.split("/").pop() ?? "file" + getBlobExtension(blob);
+      const extension = mimeToExt(blob.type);
+      const fallback = "file" + (extension ? "." + extension : "");
+      const filename = pathname.split("/").pop() ?? fallback;
 
       return new File([blob], filename, { type: blob.type });
     } catch (err) {
@@ -69,7 +50,14 @@ namespace FileUtils {
   };
 
   export const compressImage = async (file: File, limit = 2500) => {
-    if (!ValidationUtils.fileIsImage(file, ["image/jpeg", "image/png"])) return null;
+    const validFormats: typeof C.allowed_ext.image = [
+      FileFormats.Image.BMP,
+      FileFormats.Image.JPG,
+      FileFormats.Image.JPEG,
+      FileFormats.Image.PNG,
+    ];
+
+    if (!ValidationUtils.fileIsValidImage(file, validFormats)) return null;
 
     const toImageElement = async (file: File) => {
       return new Promise<HTMLImageElement>((resolve, reject) => {
@@ -95,7 +83,7 @@ namespace FileUtils {
 
     const canvasToBlob = (canvas: HTMLCanvasElement, quality: number) => {
       return new Promise<Blob | null>((resolve) => {
-        canvas.toBlob((blob) => resolve(blob), "image/jpeg", quality);
+        canvas.toBlob((blob) => resolve(blob), FileFormats.Image.JPEG, quality);
       });
     };
 

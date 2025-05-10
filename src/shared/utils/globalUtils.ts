@@ -1,4 +1,4 @@
-import { AllowedTypes } from "../../config";
+import { default as C } from "../../config";
 
 export namespace DateUtils {
   const formatToRelative = (diffInSeconds: number) => {
@@ -120,20 +120,20 @@ export namespace ValidationUtils {
     return input.files && input.files.length > 0;
   };
 
-  export const fileIsImage = (file: File | Blob, mime?: AllowedTypes.ImageMimes[]) => {
-    if (mime && mime.length > 0) {
-      return mime.some((type) => file.type.startsWith(type));
-    }
-
-    return file.type.startsWith("image/");
+  export const fileIsAllowed = (file: File | Blob) => {
+    return Object.values(C.allowed_ext).some((type) => type.some((mime) => mime === file.type));
   };
 
-  export const fileIsVideo = (file: File | Blob, mime?: AllowedTypes.VideoMimes[]) => {
-    if (mime && mime.length > 0) {
-      return mime.some((type) => file.type.startsWith(type));
-    }
+  export const fileIsValidImage = (file: File | Blob, mimes = C.allowed_ext.image) => {
+    return mimes.some((mime) => mime === file.type);
+  };
 
-    return file.type.startsWith("video/");
+  export const fileIsValidVideo = (file: File | Blob, mimes = C.allowed_ext.video) => {
+    return mimes.some((mime) => mime === file.type);
+  };
+
+  export const fileIsValidAudio = (file: File | Blob, mimes = C.allowed_ext.audio) => {
+    return mimes.some((mime) => mime === file.type);
   };
 
   export const filesizeIsTooBig = (file: File | Blob, kilobytes = 2500) => {
