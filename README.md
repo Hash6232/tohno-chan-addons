@@ -7,7 +7,7 @@ Collection of tweaks for tohno-chan (vichan).
 - Paste files from clipboard into a post
 - Rename files before uploading them
 - File toolbar (preview, upload from URL, remove file)
-- Auto-compression of images exceeding 2500KB in size
+- Auto-compression of images exceeding 10MB in size
 
 ## Posts
 
