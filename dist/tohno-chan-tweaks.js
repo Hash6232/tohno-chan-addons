@@ -168,13 +168,30 @@
         };
     })(ValidationUtils || (ValidationUtils = {}));
 
-    const handlePasteEvent = ({ clipboardData }, input) => {
+    const handlePasteEvent = async ({ clipboardData }, input) => {
         if (!clipboardData || clipboardData.files.length > 1)
             return;
         const file = clipboardData.files[0];
         if (!file)
             return;
-        FormUtils.setInputFile(input, file);
+        const options = { type: file.type, lastModified: file.lastModified };
+        let originalFilename = file.name;
+        for (const item of clipboardData.items) {
+            if (item.type !== "text/html")
+                continue;
+            const html = await new Promise((resolve) => item.getAsString(resolve));
+            const doc = new DOMParser().parseFromString(html, "text/html");
+            const img = doc.querySelector("img");
+            if (img && img.src) {
+                const url = new URL(img.src);
+                const pathname = url.pathname;
+                const filename = pathname.substring(pathname.lastIndexOf("/") + 1);
+                const extension = file.name.split(".").pop();
+                originalFilename = filename + "." + extension;
+            }
+        }
+        const output = new File([file], originalFilename, options);
+        FormUtils.setInputFile(input, output);
     };
     const filePasteFeature = (form) => {
         const textarea = form.querySelector(Selectors.Form.TEXTAREA);
